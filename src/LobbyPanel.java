@@ -2,11 +2,15 @@ import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JMenuBar;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.io.File;
 
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
@@ -24,9 +28,18 @@ public class LobbyPanel extends JPanel {
 	private JTable roomTable; //방 목록 테이블
 	private JTable onlineUserTable; //온라인 사용자 테이블
 	
+	//음향
+	private Clip clip1; //배경음악
+	
+	
 	public LobbyPanel() {
 		setBounds(100, 100, 863, 572);
 		setLayout(null);
+		
+		//음향 시작
+		loadAudioBack();
+		clip1.start(); //배경음악 시작
+		//음향 종료
 		
 		//메뉴바 시작
 		JMenuBar menuBar = new JMenuBar();
@@ -157,5 +170,16 @@ public class LobbyPanel extends JPanel {
 	public void paintComponent(Graphics g) { //그리는 함수
 		super.paintComponents(g);
 		g.drawImage(background, 0, 0, getWidth(), getHeight() ,this);//background를 그려줌
+	}
+	
+	//입장하기 클릭 시 효과음
+	public void loadAudioBack() {
+		try {
+			clip1= AudioSystem.getClip();
+			File audioFile = new File("sound/lobbyRoom.wav");
+			AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+			clip1.open(audioStream);
+		}
+		catch (Exception e) {return;}
 	}
 }
