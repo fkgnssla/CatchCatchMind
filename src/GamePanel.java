@@ -216,9 +216,9 @@ public class GamePanel extends JPanel{
 	
 	}
 	
-	public void paint(Graphics g) {
-		g.drawImage(gamebackground, 0, 0, getWidth(), getHeight(), this);
+	public void paintComponent(Graphics g) {
 		super.paintComponents(g);
+		g.drawImage(gamebackground, 0, 0, getWidth(), getHeight(), this);
+		
 	}
-
 }

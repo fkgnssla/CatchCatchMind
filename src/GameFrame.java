@@ -10,7 +10,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 public class GameFrame extends JFrame{
-	private GamePanel contentPane;
+	private JPanel contentPane;
 	
 	public GameFrame() {
 		setVisible(true);
