@@ -33,7 +33,7 @@ public class StartFrame extends JFrame {
 	
 	public StartFrame() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 800, 572);
+		setBounds(100, 100, 863, 572);
 		setTitle("캐치마인드");
 		setResizable(false);//창의 크기를 변경하지 못하게
 		setLocationRelativeTo(null);//창이 가운데 나오게

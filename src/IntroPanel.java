@@ -14,16 +14,16 @@ import java.awt.Font;
 
 public class IntroPanel extends JPanel {
 
-	private Image background = new ImageIcon(StartFrame.class.getResource("image/catchmind.png")).getImage();
+	private Image background = new ImageIcon(StartFrame.class.getResource("image/back.png")).getImage();
 	private ImageIcon loginLogo = new ImageIcon(StartFrame.class.getResource("image/loginLogo.png"));
 	private final JTextField textField = new JTextField();
-	
+
 	public IntroPanel() {
-		setBounds(0, 0, 800, 572);
+		setBounds(0, 0, 863, 572);
 		setLayout(null);
 		
-		JLabel logo = new JLabel(loginLogo);
-		logo.setBounds(12, 212, 89, 89);
+//		JLabel logo = new JLabel(loginLogo);
+//		logo.setBounds(12, 212, 89, 89);
 //		add(logo);
 		
 		
