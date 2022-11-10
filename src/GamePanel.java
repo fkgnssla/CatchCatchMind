@@ -13,6 +13,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class GamePanel extends JPanel{
 	
@@ -33,8 +35,8 @@ public class GamePanel extends JPanel{
 	private JTextField username4;
 	private JTextField showWord;
 	
-	//색칠
-	public JButton btnBlack, btnRed, btnBlue, btnGreen, btnYellow, btnEraser, btnClear;	
+	//버튼
+	public JButton btnBlack, btnRed, btnBlue, btnGreen, btnYellow, btnEraser, btnClear, btnStart, btnClose;	
 	
 	private ImageIcon black = new ImageIcon("src/image/black.png");
 	private ImageIcon red = new ImageIcon("src/image/red.png");
@@ -42,21 +44,23 @@ public class GamePanel extends JPanel{
 	private ImageIcon green= new ImageIcon("src/image/green.png");
 	private ImageIcon yellow = new ImageIcon("src/image/yellow.png");
 	private ImageIcon eraser = new ImageIcon("src/image/eraseall.png");
-	//private ImageIcon allclear = new ImageIcon("src/image/clearButton.png");
+	private ImageIcon allclear = new ImageIcon("src/image/clearButton.png");
+	private ImageIcon startImg = new ImageIcon("src/image/startbtn.png");
+	private ImageIcon closeImg = new ImageIcon("src/image/exit.png");
 	
 	
 	public GamePanel() {
 		setLayout(null);
 		setBounds(100, 100, 863, 572);
 		
-		//메뉴바 시작
-		JMenuBar menuBar = new JMenuBar();
-		menuBar.setBounds(0, 0, 863, 40);
-		add(menuBar);
-				
-		JLabel title = new JLabel("CatchCatchMind");
-		title.setFont(new Font("맑은 고딕", Font.BOLD, 16));
-		menuBar.add(title);
+//		//메뉴바 시작
+//		JMenuBar menuBar = new JMenuBar();
+//		menuBar.setBounds(0, 0, 863, 40);
+//		add(menuBar);
+//				
+//		JLabel title = new JLabel("CatchCatchMind");
+//		title.setFont(new Font("맑은 고딕", Font.BOLD, 16));
+//		menuBar.add(title);
 		//메뉴바 끝
 		
 		//------그림 화면
@@ -76,13 +80,13 @@ public class GamePanel extends JPanel{
 		//------제시어 화면
 		JLabel wordLabel = new JLabel("제시어");
 		wordLabel.setFont(new Font("맑은 고딕", Font.BOLD, 16));
-		wordLabel.setBounds(480, 75, 208, 40);
+		wordLabel.setBounds(475, 72, 100, 40);
 		add(wordLabel);
 		
 		showWord = new JTextField();
 		showWord.setFont(new Font("맑은 고딕", Font.BOLD, 12));
 		showWord.setText("딸기맛 사탕");
-		showWord.setBounds(535, 81, 100, 25);
+		showWord.setBounds(530, 81, 100, 25);
 		showWord.setEnabled(false);
 		showWord.setColumns(10);
 		add(showWord);
@@ -122,8 +126,8 @@ public class GamePanel extends JPanel{
 		add(username);
 		
 		JLabel score1Label = new JLabel("SCORE");
-		score1Label.setFont(new Font("맑은 고딕", Font.PLAIN, 10));
-		score1Label.setBounds(39,184,65,17);
+		score1Label.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
+		score1Label.setBounds(42,186,65,17);
 		add(score1Label);
 		JLabel score1Label_score = new JLabel("50");
 		score1Label_score.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
@@ -134,90 +138,90 @@ public class GamePanel extends JPanel{
 		JLabel user2Label = new JLabel(userImg);
 		user2Label.setBounds(105, 214, 68, 110);
 		add(user2Label);
+		
 		username = new JTextField();
-		username.setFont(new Font("맑은 고딕", Font.BOLD, 11));
 		username.setText("user2");
+		username.setFont(new Font("맑은 고딕", Font.BOLD, 11));
 		username.setBounds(36, 231, 68, 22);
 		username.setEnabled(false);
 		username.setColumns(10);
-		add(username);
-		
 		JLabel score2Label = new JLabel("SCORE");
-		score2Label.setFont(new Font("맑은 고딕", Font.PLAIN, 10));
-		score2Label.setBounds(39,290,65,17);
-		add(score2Label);
+		score2Label.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
+		score2Label.setBounds(42,288,65,17);
 		JLabel score2Label_score = new JLabel("70");
 		score2Label_score.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		score2Label_score.setBounds(40, 260, 65, 17);
+		add(username);	
+		add(score2Label);
 		add(score2Label_score);
 		
 		//user3
 		JLabel user3Label = new JLabel(userImg);
 		user3Label.setBounds(746, 108, 68, 110);
 		add(user3Label);
+		
 		username3 = new JTextField();
-		username3.setFont(new Font("맑은 고딕", Font.BOLD, 12));
 		username3.setText("user3");
+		username3.setFont(new Font("맑은 고딕", Font.BOLD, 12));
 		username3.setBounds(676, 125, 68, 22);
 		username3.setEnabled(false);
 		username3.setColumns(10);
-		add(username3);
-		
 		JLabel score3Label = new JLabel("SCORE");
 		score3Label.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
-		score3Label.setBounds(679, 180, 65, 17);
-		add(score3Label);
+		score3Label.setBounds(679, 180, 65, 17);	
 		JLabel score3Label_score = new JLabel("50");
 		score3Label_score.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
-		score3Label_score.setBounds(679, 158, 65, 17);
+		score3Label_score.setBounds(679, 155, 65, 17);
+		add(username3);
+		add(score3Label);
 		add(score3Label_score);
 		
 		//user4
 		JLabel user4Label = new JLabel(userImg2);
 		user4Label.setBounds(744, 210, 68, 110);
 		add(user4Label);
+		
 		username4 = new JTextField();
-		username4.setFont(new Font("맑은 고딕", Font.BOLD, 12));
 		username4.setText("user4");
+		username4.setFont(new Font("맑은 고딕", Font.BOLD, 12));
 		username4.setBounds(674, 228, 68, 22);
 		username4.setEnabled(false);
 		username4.setColumns(10);
-		add(username4);
-		
 		JLabel score4Label = new JLabel("SCORE");
 		score4Label.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
-		score4Label.setBounds(679, 280, 65, 17);
-		add(score4Label);
+		score4Label.setBounds(679, 282, 65, 17);	
 		JLabel score4Label_score = new JLabel("50");
 		score4Label_score.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		score4Label_score.setBounds(679, 255, 65, 17);
+		add(username4);
+		add(score4Label);
 		add(score4Label_score);	
 		//------사용자 끝
 		
 		//------색 버튼
-		/*
-		colorBar = new JPanel();
-		colorBar.setBorder(null);
-		colorBar.setBounds(200,430,450,100);
-		colorBar.setOpaque(false);
-		add(colorBar);		
-		*/
 		btnBlack = new JButton(black);
 		btnRed = new JButton(red);
 		btnBlue = new JButton(blue);
 		btnGreen = new JButton(green);
 		btnYellow = new JButton(yellow);
 		btnEraser = new JButton(eraser);
-		btnClear = new JButton("allclear");
+		btnClear = new JButton(allclear);
 		
+		btnBlack.setPressedIcon(new ImageIcon("src/image/black_pressed.png"));
+		btnRed.setPressedIcon(new ImageIcon("src/image/red_pressed.png"));
+		btnBlue.setPressedIcon(new ImageIcon("src/image/blue_pressed.png"));
+		btnGreen.setPressedIcon(new ImageIcon("src/image/green_pressed.png"));
+		btnYellow.setPressedIcon(new ImageIcon("src/image/yellow_pressed.png"));
+		//btnEraser.setPressedIcon(new ImageIcon("src/image/black_pressed.png"));
+		//btnClear.setPressedIcon(new ImageIcon("src/image/black_pressed.png"));
 		
-		btnBlack.setBorderPainted(false); btnRed.setBorderPainted(false); 
+		btnBlack.setBorderPainted(false); btnRed.setBorderPainted(false); btnClear.setBorderPainted(false); 
 		btnBlue.setBorderPainted(false); btnGreen.setBorderPainted(false); 
 		btnYellow.setBorderPainted(false); btnEraser.setBorderPainted(false); 
-		btnBlack.setContentAreaFilled(false);btnRed.setContentAreaFilled(false);
+		btnBlack.setContentAreaFilled(false);btnRed.setContentAreaFilled(false); btnClear.setContentAreaFilled(false);
 		btnBlue.setContentAreaFilled(false);btnGreen.setContentAreaFilled(false);
 		btnYellow.setContentAreaFilled(false);btnEraser.setContentAreaFilled(false);
-		btnBlack.setFocusPainted(false);btnRed.setFocusPainted(false);
+		btnBlack.setFocusPainted(false);btnRed.setFocusPainted(false); btnClear.setFocusPainted(false);
 		btnBlue.setFocusPainted(false);btnGreen.setFocusPainted(false);
 		btnYellow.setFocusPainted(false);btnEraser.setFocusPainted(false);
 			
@@ -227,17 +231,36 @@ public class GamePanel extends JPanel{
 		btnGreen.setBounds(380, 460, 50, 50);
 		btnYellow.setBounds(430, 460, 50, 50);
 		btnEraser.setBounds(480, 460, 50, 50);
-		add(btnBlack); add(btnRed); add(btnBlue); add(btnGreen); add(btnYellow);add(btnEraser);
-		/*
-		colorBar.add(btnBlack);
-		colorBar.add(btnRed);
-		colorBar.add(btnBlue);
-		colorBar.add(btnGreen);
-		colorBar.add(btnYellow);
-		colorBar.add(btnEraser);
-		colorBar.add(btnClear);
-		*/
+		btnClear.setBounds(530, 460, 100, 50);
+		add(btnBlack); add(btnRed); add(btnBlue); add(btnGreen); add(btnYellow);add(btnEraser);add(btnClear);
+		
+		btnBlack.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		
 		//------색 버튼 끝
+
+		//------게임 시작 버튼
+		btnStart = new JButton(startImg);
+		btnStart.setBorderPainted(false); btnStart.setContentAreaFilled(false);btnStart.setFocusPainted(false);
+		btnStart.setBounds(660, 14, 60, 60);
+		add(btnStart);
+		
+		//------게임 나가기 버튼
+		btnClose = new JButton(closeImg);
+		btnClose.setBorderPainted(false); btnClose.setContentAreaFilled(false);btnClose.setFocusPainted(false);
+		btnClose.setBounds(730, 13, 60, 60);
+		add(btnClose);
+		
+		JButton btnHint = new JButton("HINT");
+		btnHint.setBounds(79, 390, 75, 30);
+		add(btnHint);
+		
+		JButton btnPic = new JButton("밑그림");
+		btnPic.setBounds(79, 430, 75, 30);
+		add(btnPic);
+		//------게임 시작 나가기 버튼 끝
 	
 	}
 	
