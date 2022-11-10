@@ -5,6 +5,9 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -14,6 +17,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.awt.event.ActionEvent;
 
 public class GamePanel extends JPanel{
@@ -48,10 +52,17 @@ public class GamePanel extends JPanel{
 	private ImageIcon startImg = new ImageIcon("src/image/startbtn.png");
 	private ImageIcon closeImg = new ImageIcon("src/image/exit.png");
 	
+	//음향
+	private Clip clip1; //배경음악
 	
 	public GamePanel() {
 		setLayout(null);
 		setBounds(100, 100, 863, 572);
+		
+		//음향 시작
+		loadAudioBack();
+		clip1.start(); //배경음악 시작
+		//음향 종료
 		
 //		//메뉴바 시작
 //		JMenuBar menuBar = new JMenuBar();
@@ -65,7 +76,7 @@ public class GamePanel extends JPanel{
 		
 		//------그림 화면
 		contentPane = new JPanel();
-		contentPane.setBounds(208, 136, 431, 314);
+		contentPane.setBounds(210, 136, 428, 314);
 		contentPane.setForeground(new Color(0, 0, 0));
 		contentPane.setBackground(Color.WHITE);
 		contentPane.setLayout(null);
@@ -269,4 +280,15 @@ public class GamePanel extends JPanel{
 		g.drawImage(gamebackground, 0, 0, getWidth(), getHeight(), this);
 		
 	}
+	
+	public void loadAudioBack() {
+		try {
+			clip1= AudioSystem.getClip();
+			File audioFile = new File("sound/gameRoom.wav");
+			AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+			clip1.open(audioStream);
+		}
+		catch (Exception e) {return;}
+	}
+	
 }
