@@ -1,6 +1,8 @@
 import java.awt.event.MouseEvent;
+import java.io.Serializable;
 
-public class Data {
+public class Data implements Serializable{
+	private static final long serialVersionUID = 1L;
 	String code; //프로토콜(정답알림은 프로토콜만으로)
 	User user; //사용자
 	String message; //메세지
