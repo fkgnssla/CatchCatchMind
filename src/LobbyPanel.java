@@ -1,16 +1,30 @@
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import javax.swing.JMenuBar;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.net.Socket;
 
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
@@ -18,21 +32,38 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JList;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class LobbyPanel extends JPanel {
 	
-	private JTextField textField;
+	private String UserName;
+	private JTextField txtInput;
 	private JTextField nickname;
 	private ImageIcon userImage = new ImageIcon(LobbyPanel.class.getResource("image/onion.png"));
 	private Image background = new ImageIcon(LobbyPanel.class.getResource("image/back.png")).getImage();
 	private JTable roomTable; //방 목록 테이블
 	private JTable onlineUserTable; //온라인 사용자 테이블
 	
+	private JTextPane textArea;
+	private JButton btnSend;
+	
+	private static final long serialVersionUID = 1L;
+	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
+	private Socket socket; // 연결소켓
+	private InputStream is;
+	private OutputStream os;
+	private DataInputStream dis;
+	private DataOutputStream dos;
+
+	private ObjectInputStream ois;
+	private ObjectOutputStream oos;
+	
+	
 	//음향
 	private Clip clip1; //배경음악
 	
-	
-	public LobbyPanel() {
+	public LobbyPanel(String username, String ip_addr, String port_no) {
 		setBounds(100, 100, 863, 572);
 		setLayout(null);
 		
@@ -76,21 +107,21 @@ public class LobbyPanel extends JPanel {
 		scrollPane_1.setBounds(10, 403, 537, 97);
 		add(scrollPane_1);
 		
-		JTextArea textArea = new JTextArea(); //채팅창
+		textArea = new JTextPane(); //채팅창
 		scrollPane_1.setViewportView(textArea);
 		
 		JLabel chatLabel = new JLabel("대화창 --- Chatting Room");
 		scrollPane_1.setColumnHeaderView(chatLabel);
 		
-		textField = new JTextField();
-		textField.setBounds(10, 505, 453, 21);
-		add(textField);
-		textField.setColumns(10);
+		txtInput = new JTextField();
+		txtInput.setBounds(10, 505, 453, 21);
+		add(txtInput);
+		txtInput.setColumns(10);
 		
-		JButton btnNewButton = new JButton("입력");
-		btnNewButton.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
-		btnNewButton.setBounds(473, 505, 74, 23);
-		add(btnNewButton);
+		btnSend = new JButton("입력");
+		btnSend.setFont(new Font("맑은 고딕", Font.PLAIN, 12));
+		btnSend.setBounds(473, 505, 74, 23);
+		add(btnSend);
 		//전체채팅 끝
 		
 		//내 정보 시작
@@ -98,10 +129,12 @@ public class LobbyPanel extends JPanel {
 		lblNewLabel.setBounds(559, 50, 123, 130);
 		add(lblNewLabel);
 		
+		UserName = username;
+		
 		nickname = new JTextField();
 		nickname.setFont(new Font("맑은 고딕", Font.BOLD, 14));
 		nickname.setBounds(559, 190, 123, 21);
-		nickname.setText("우아우우웅웅");
+		nickname.setText(UserName);
 		nickname.setEnabled(false);
 		add(nickname);
 		nickname.setColumns(10);
@@ -165,6 +198,32 @@ public class LobbyPanel extends JPanel {
 		scrollPane_2.setViewportView(onlineUserTable);
 		
 		//온라인 사용자
+		
+		//------연결 / 채팅
+		try {
+			socket = new Socket(ip_addr, Integer.parseInt(port_no));
+
+			oos = new ObjectOutputStream(socket.getOutputStream());
+			oos.flush();
+			ois = new ObjectInputStream(socket.getInputStream());
+
+			// SendMessage("/login " + UserName);
+			ChatMsg obcm = new ChatMsg(UserName, "100", "Hello");
+			SendObject(obcm);
+
+			ListenNetwork net = new ListenNetwork();
+			net.start();
+			TextSendAction action = new TextSendAction();
+			btnSend.addActionListener(action);
+			txtInput.addActionListener(action);
+			txtInput.requestFocus();
+			
+		} catch (NumberFormatException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			AppendText("connect error");
+		}
+		//------연결 끝
 	}
 	
 	public void paintComponent(Graphics g) { //그리는 함수
@@ -181,5 +240,130 @@ public class LobbyPanel extends JPanel {
 			clip1.open(audioStream);
 		}
 		catch (Exception e) {return;}
+	}
+	
+	class TextSendAction implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// Send button을 누르거나 메시지 입력하고 Enter key 치면
+			if (e.getSource() == btnSend || e.getSource() == txtInput) {
+				String msg = null;
+				// msg = String.format("[%s] %s\n", UserName, txtInput.getText());
+				msg = txtInput.getText();
+				SendMessage(msg);
+				txtInput.setText(""); // 메세지를 보내고 나면 메세지 쓰는창을 비운다.
+				txtInput.requestFocus(); // 메세지를 보내고 커서를 다시 텍스트 필드로 위치시킨다
+				if (msg.contains("/exit")) // 종료 처리
+					System.exit(0);
+			}
+		}
+	}
+	
+	// 화면에 출력
+	public void AppendText(String msg) {
+		msg = msg.trim(); // 앞뒤 blank와 \n을 제거한다.
+			
+		StyledDocument doc = textArea.getStyledDocument();
+		SimpleAttributeSet left = new SimpleAttributeSet();
+		StyleConstants.setAlignment(left, StyleConstants.ALIGN_LEFT);
+		StyleConstants.setForeground(left, Color.BLACK);
+	    doc.setParagraphAttributes(doc.getLength(), 1, left, false);
+	    try {
+			doc.insertString(doc.getLength(), msg+"\n", left );
+		} catch (BadLocationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		int len = textArea.getDocument().getLength();
+		textArea.setCaretPosition(len);	
+	}
+	// 화면 우측에 출력
+	public void AppendTextR(String msg) {
+		msg = msg.trim(); // 앞뒤 blank와 \n을 제거한다.	
+		StyledDocument doc = textArea.getStyledDocument();
+		SimpleAttributeSet right = new SimpleAttributeSet();
+		StyleConstants.setAlignment(right, StyleConstants.ALIGN_RIGHT);
+		StyleConstants.setForeground(right, Color.BLUE);	
+	    doc.setParagraphAttributes(doc.getLength(), 1, right, false);
+		try {
+			doc.insertString(doc.getLength(),msg+"\n", right );
+		} catch (BadLocationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+		int len = textArea.getDocument().getLength();
+		textArea.setCaretPosition(len);
+	
+	}	
+		
+	// Server Message를 수신해서 화면에 표시
+	class ListenNetwork extends Thread {
+		public void run() {
+			while (true) {
+				try {
+					Object obcm = null;
+					String msg = null;
+					ChatMsg cm;
+					try {
+						obcm = ois.readObject();
+					} catch (ClassNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						break;
+					}
+					if (obcm == null)
+						break;
+					if (obcm instanceof ChatMsg) {
+						cm = (ChatMsg) obcm;
+						msg = String.format("[%s]\n%s", cm.UserName, cm.data);
+					} else
+						continue;
+					switch (cm.code) {
+					case "200": // chat message
+						if (cm.UserName.equals(UserName))
+							AppendTextR(msg); // 내 메세지는 우측에
+						else
+							AppendText(msg);
+						break;
+					}
+				} catch (IOException e) {
+					AppendText("ois.readObject() error");
+					try {
+						ois.close();
+						oos.close();
+						socket.close();
+						break;
+					} catch (Exception ee) {
+						break;
+					} // catch문 끝
+				} // 바깥 catch문끝
+
+			}
+		}
+	}
+	// Server에게 network으로 전송
+	public void SendMessage(String msg) {
+		try {
+			ChatMsg obcm = new ChatMsg(UserName, "200", msg);
+			oos.writeObject(obcm);
+		} catch (IOException e) {
+			AppendText("oos.writeObject() error");
+			try {
+				ois.close();
+				oos.close();
+				socket.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				System.exit(0);
+			}
+		}
+	}
+	public void SendObject(Object ob) { // 서버로 메세지를 보내는 메소드
+		try {
+			oos.writeObject(ob);
+		} catch (IOException e) {
+			AppendText("SendObject Error");
+		}
 	}
 }

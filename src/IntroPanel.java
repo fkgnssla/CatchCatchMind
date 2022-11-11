@@ -20,8 +20,11 @@ public class IntroPanel extends JPanel {
 
 	private Image background = new ImageIcon(StartFrame.class.getResource("image/back.png")).getImage();
 	private ImageIcon loginLogo = new ImageIcon(StartFrame.class.getResource("image/loginLogo.png"));
-	private final JTextField textField = new JTextField();
 	private Clip clip;	//입장하기 or 종료하기 클릭시 오디오 재생도구
+	
+	private final JTextField txtUserName = new JTextField();
+	private String txtIpAddress = "127.0.0.1";
+	private String txtPortNumber = "30000";
 	
 	public IntroPanel() {
 		setBounds(0, 0, 863, 572);
@@ -32,9 +35,9 @@ public class IntroPanel extends JPanel {
 //		add(logo);
 		
 		
-		textField.setBounds(260, 397, 283, 36);
-		add(textField);
-		textField.setColumns(10);
+		txtUserName.setBounds(260, 397, 283, 36);
+		add(txtUserName);
+		txtUserName.setColumns(10);
 		
 		JLabel nickname = new JLabel("닉네임");
 		nickname.setFont(new Font("맑은 고딕", Font.BOLD, 33));
@@ -45,11 +48,15 @@ public class IntroPanel extends JPanel {
 		gameStart.setFont(new Font("맑은 고딕", Font.BOLD, 33));
 		gameStart.setBounds(594, 390, 156, 54);
 		add(gameStart);
+		
 		//입장하기 눌렀을 때
 		gameStart.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
 				clip.start();
-				new LobbyFrame();	//게임을 다시 시작하기위한 구성이 들어있는 함수
+				String username = txtUserName.getText().trim();
+				String ip_addr = txtIpAddress;
+				String port_no = txtPortNumber;
+				new LobbyFrame(username, ip_addr, port_no);	//게임을 다시 시작하기위한 구성이 들어있는 함수
 			}
 			public void mouseEntered(MouseEvent e) {
 				gameStart.setFont(new Font("맑은 고딕",Font.BOLD,33));
