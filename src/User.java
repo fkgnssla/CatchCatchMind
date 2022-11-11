@@ -1,5 +1,7 @@
+import java.io.Serializable;
 
-public class User {
+public class User implements Serializable {
+	private static final long serialVersionUID = 1L;
 	String name; //닉네임
 	long victoryCount; //이긴 횟수
 	long gold; //골드

@@ -28,6 +28,9 @@ import javax.swing.SwingConstants;
 
 public class GameServer extends JFrame {
 
+	/**
+	 * 
+	 */
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	JTextArea textArea;
@@ -38,6 +41,9 @@ public class GameServer extends JFrame {
 	private Vector UserVec = new Vector(); // 연결된 사용자를 저장할 벡터
 	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 
+	/**
+	 * Launch the application.
+	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -51,6 +57,9 @@ public class GameServer extends JFrame {
 		});
 	}
 
+	/**
+	 * Create the frame.
+	 */
 	public GameServer() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 338, 440);
@@ -87,8 +96,8 @@ public class GameServer extends JFrame {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				AppendText("Game Server Running.."); //textArea에 문자열 출력
-				btnServerStart.setText("Game Server Running..");
+				AppendText("Chat Server Running.."); //textArea에 문자열 출력
+				btnServerStart.setText("Chat Server Running..");
 				btnServerStart.setEnabled(false); // 서버를 더이상 실행시키지 못 하게 막는다
 				txtPortNumber.setEnabled(false); // 더이상 포트번호 수정못 하게 막는다
 				AcceptServer accept_server = new AcceptServer(); 
@@ -124,14 +133,16 @@ public class GameServer extends JFrame {
 
 	//textArea에 문자열 출력
 	public void AppendText(String str) {
+		// textArea.append("사용자로부터 들어온 메세지 : " + str+"\n");
 		textArea.append(str + "\n");
 		textArea.setCaretPosition(textArea.getText().length()); //맨아래로 스크롤한다.
 	}
 
-	public void AppendObject(Data msg) {
+	public void AppendObject(Data data) {
 		// textArea.append("사용자로부터 들어온 object : " + str+"\n");
-		textArea.append("code = " + msg.code + "\n"); //프로토콜
-		textArea.append("id = " + msg.user + "\n"); //사용자 이름
+		textArea.append("code = " + data.code + "\n"); //프로토콜
+		textArea.append("id = " + data.user.name + "\n"); //사용자 이름
+		textArea.append("data = " + data.msg + "\n"); //정보
 		textArea.setCaretPosition(textArea.getText().length()); //맨아래로 스크롤한다.
 	}
 
@@ -150,9 +161,9 @@ public class GameServer extends JFrame {
 		private Vector user_vc;	
 		public String UserName = "";
 		public String UserStatus;
-		
-		public User user; //사용자 정보
 
+		User user=null;
+		
 		public UserService(Socket client_socket) {
 			// TODO Auto-generated constructor stub
 			// 매개변수로 넘어온 자료 저장
@@ -162,25 +173,24 @@ public class GameServer extends JFrame {
 				oos = new ObjectOutputStream(client_socket.getOutputStream());
 				oos.flush();
 				ois = new ObjectInputStream(client_socket.getInputStream());
-				
-				user = new User();
 			} catch (Exception e) {
 				AppendText("userService error");
 			}
 		}
 
-//		public void Login() {
-//			AppendText("새로운 참가자 " + UserName + " 입장.");
-//			WriteOne(UserName + "님 환영합니다.\n"); // 연결된 사용자에게 정상접속을 알림
-//			String msg = "[" + UserName + "]님이 입장 하였습니다.\n";
-//			WriteOthers(msg); //아직 user_vc에 새로 입장한 user는 포함되지 않았다. (아직 추가하지 않았기에)
-//		}
+		public void Login() {
+			AppendText("새로운 참가자 " + UserName + " 입장.");
+			WriteOne("Welcome to Java chat server\n");
+			WriteOne(UserName + "님 환영합니다.\n"); // 연결된 사용자에게 정상접속을 알림
+			String msg = "[" + UserName + "]님이 입장 하였습니다.\n";
+			WriteOthers(msg); //아직 user_vc에 새로 입장한 user는 포함되지 않았다. (아직 추가하지 않았기에)
+		}
 
 		public void Logout() {
-			String msg = "[" + user.name + "]님이 퇴장 하였습니다.\n";
+			String msg = "[" + UserName + "]님이 퇴장 하였습니다.\n";
 			UserVec.removeElement(this); // Logout한 현재 객체를 벡터에서 지운다
 			WriteAll(msg); // 나를 제외한 다른 User들에게 전송(보내기전 벡터에서 삭제했기에 가능)
-			AppendText("사용자 " + "[" + user.name + "] 퇴장. 현재 참가자 수 " + UserVec.size());
+			AppendText("사용자 " + "[" + UserName + "] 퇴장. 현재 참가자 수 " + UserVec.size());
 		}
 
 		// 모든 User들에게 방송. 각각의 UserService Thread의 WriteOne() 을 호출한다.
@@ -195,8 +205,8 @@ public class GameServer extends JFrame {
 		public void WriteAllObject(Object ob) {
 			for (int i = 0; i < user_vc.size(); i++) {
 				UserService user = (UserService) user_vc.elementAt(i);
-//				if (user.UserStatus == "O")
-				user.WriteOneObject(ob);
+				if (user.UserStatus == "O")
+					user.WriteOneObject(ob);
 			}
 		}
 
@@ -204,8 +214,7 @@ public class GameServer extends JFrame {
 		public void WriteOthers(String str) {
 			for (int i = 0; i < user_vc.size(); i++) {
 				UserService user = (UserService) user_vc.elementAt(i);
-//				if (user != this && user.UserStatus == "O")
-				if (user != this)
+				if (user != this && user.UserStatus == "O")
 					user.WriteOne(str);
 			}
 		}
@@ -232,13 +241,13 @@ public class GameServer extends JFrame {
 		//입장 및 퇴장, /list 의 경우에 이 메소드가 호출된다.
 		public void WriteOne(String msg) {
 			try {
-				Data data = new Data();
-				data.code = "600";
-				data.message = msg;
+				Data data = new Data(user, "200", msg);
 				oos.writeObject(data); //송신
 			} catch (IOException e) {
 				AppendText("dos.writeObject() error");
 				try {
+//					dos.close();
+//					dis.close();
 					ois.close();
 					oos.close();
 					client_socket.close();
@@ -253,27 +262,6 @@ public class GameServer extends JFrame {
 			}
 		}
 
-//		// 귓속말 전송 => 친구추가해서 하면 좋을듯
-//		public void WritePrivate(String msg) {
-//			try {
-//				ChatMsg obcm = new ChatMsg("귓속말", "200", msg);
-//				oos.writeObject(obcm);
-//			} catch (IOException e) {
-//				AppendText("dos.writeObject() error");
-//				try {
-//					oos.close();
-//					client_socket.close();
-//					client_socket = null;
-//					ois = null;
-//					oos = null;
-//				} catch (IOException e1) {
-//					// TODO Auto-generated catch block
-//					e1.printStackTrace();
-//				}
-//				Logout(); // 에러가난 현재 객체를 벡터에서 지운다
-//			}
-//		}
-		
 		public void WriteOneObject(Object ob) {
 			try {
 			    oos.writeObject(ob);
@@ -301,6 +289,7 @@ public class GameServer extends JFrame {
 				try {
 					Object obcm = null;
 					String msg = null;
+//					ChatMsg cm = null;
 					Data data = null;
 					if (socket == null)
 						break;
@@ -318,45 +307,46 @@ public class GameServer extends JFrame {
 						AppendObject(data); //textArea에 보낸 사용자 + 프로토콜 + 메세지 출력
 					} else
 						continue;
-					if (data.code.matches("100")) { //이때, 초기설정
-						user.name = data.message; //이름 받는다.
+					if (data.code.matches("100")) { //로그인
+						UserName = data.user.name;
 						UserStatus = "O"; // Online 상태
-						AppendText("사용자 연결 완료!");
-//						Login();
-					} else if (data.code.matches("200")) { //방 생성
-//						UserStatus = "O";
-						//WriteAll(msg + "\n"); // Write All
-						Room room = new Room();
-//						WriteAllObject(cm);
-					} else if (data.code.matches("201")) { //방 입장
-						Room room = data.room;
-						room.addUser(); //방에 사용자 입장
-						data.user.room = room;
-					} else if (data.code.matches("202")) { //방 퇴장
-						Room room = data.room;
-						room.deleteUser(); //방에 사용자 퇴장
-					} else if (data.code.matches("300")) { //게임 준비
-						
-					} else if (data.code.matches("301")) { //게임 시작
-						
-					} else if (data.code.matches("400")) { //키워드 받기
-						
-					} else if (data.code.matches("500")) { //마우스 이벤트
+						user = data.user;
+						Login();
+					} else if (data.code.matches("200")) { //채팅
+						msg = String.format("[%s] %s", data.user.name, data.msg);
+						AppendText(msg); // server 화면에 출력
+						//args[0]: 사용자 이름, args[1]: 메세지
+						String[] args = msg.split(" "); // 단어들을 분리한다.
+
+						System.out.println("sadasdasd\n");
 						WriteAllObject(data);
-					} else if (data.code.matches("600")) { //채팅
-						
-					} else if (data.code.matches("601")) { //정답알림
-						
-					} else if (data.code.matches("700")) { //해당 판의 남은 시간
-						
-					} else if (data.code.matches("701")) { //게임 종료 알림
-						
-					} 
+					} else if (data.code.matches("201")) { //정답알림
+		                  
+		            } else if (data.code.matches("300")) { //게임 준비
+		                  
+		            } else if (data.code.matches("301")) { //게임 시작
+		                  
+		            } else if (data.code.matches("400")) { //키워드 받기
+		                  
+		            } else if (data.code.matches("500")) { //마우스 이벤트
+		                WriteAllObject(data);
+		            } else if (data.code.matches("600")) { //방 생성
+		                Room room = new Room();
+		            } else if (data.code.matches("601")) { //방 입장
+		            	Room room = data.room;
+		                room.addUser(); //방에 사용자 입장
+		                data.user.room = room;
+		            } else if (data.code.matches("602")) { //방 퇴장
+		                Room room = data.room;
+		                room.deleteUser(); //방에 사용자 퇴장
+		            } else if (data.code.matches("700")) { //해당 판의 남은 시간
+		                  
+		            } else if (data.code.matches("701")) { //게임 종료 알림
+		                  
+		            } 
 				} catch (IOException e) {
 					AppendText("ois.readObject() error");
 					try {
-//						dos.close();
-//						dis.close();
 						ois.close();
 						oos.close();
 						client_socket.close();

@@ -59,6 +59,7 @@ public class LobbyPanel extends JPanel {
 	private ObjectInputStream ois;
 	private ObjectOutputStream oos;
 	
+	User user;
 	
 	//음향
 	private Clip clip1; //배경음악
@@ -130,6 +131,7 @@ public class LobbyPanel extends JPanel {
 		add(lblNewLabel);
 		
 		UserName = username;
+		user = new User(username);
 		
 		nickname = new JTextField();
 		nickname.setFont(new Font("맑은 고딕", Font.BOLD, 14));
@@ -207,9 +209,8 @@ public class LobbyPanel extends JPanel {
 			oos.flush();
 			ois = new ObjectInputStream(socket.getInputStream());
 
-			// SendMessage("/login " + UserName);
-			ChatMsg obcm = new ChatMsg(UserName, "100", "Hello");
-			SendObject(obcm);
+			Data data = new Data(user,"100","Hello");
+			SendObject(data);
 
 			ListenNetwork net = new ListenNetwork();
 			net.start();
@@ -303,7 +304,7 @@ public class LobbyPanel extends JPanel {
 				try {
 					Object obcm = null;
 					String msg = null;
-					ChatMsg cm;
+					Data data;
 					try {
 						obcm = ois.readObject();
 					} catch (ClassNotFoundException e) {
@@ -313,14 +314,15 @@ public class LobbyPanel extends JPanel {
 					}
 					if (obcm == null)
 						break;
-					if (obcm instanceof ChatMsg) {
-						cm = (ChatMsg) obcm;
-						msg = String.format("[%s]\n%s", cm.UserName, cm.data);
+					if (obcm instanceof Data) {
+						data = (Data) obcm;
+						System.out.println(data.msg + " " + data.code+"\n");
+						msg = String.format("[%s]\n%s", data.user.name, data.msg);
 					} else
 						continue;
-					switch (cm.code) {
+					switch (data.code) {
 					case "200": // chat message
-						if (cm.UserName.equals(UserName))
+						if (data.user.name.equals(UserName))
 							AppendTextR(msg); // 내 메세지는 우측에
 						else
 							AppendText(msg);
@@ -344,8 +346,9 @@ public class LobbyPanel extends JPanel {
 	// Server에게 network으로 전송
 	public void SendMessage(String msg) {
 		try {
-			ChatMsg obcm = new ChatMsg(UserName, "200", msg);
-			oos.writeObject(obcm);
+			Data data = new Data(user,"200",msg);
+			
+			oos.writeObject(data);
 		} catch (IOException e) {
 			AppendText("oos.writeObject() error");
 			try {
