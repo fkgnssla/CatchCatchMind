@@ -49,7 +49,7 @@ public class IntroPanel extends JPanel {
 		gameStart.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
 				clip.start();
-				new LobbyFrame();	//게임을 다시 시작하기위한 구성이 들어있는 함수
+				new LobbyFrame(nickname.toString().trim());	//게임을 다시 시작하기위한 구성이 들어있는 함수
 			}
 			public void mouseEntered(MouseEvent e) {
 				gameStart.setFont(new Font("맑은 고딕",Font.BOLD,33));
