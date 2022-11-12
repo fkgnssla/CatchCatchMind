@@ -178,17 +178,33 @@ public class GameServer extends JFrame {
 			}
 		}
 
+		//입장메세지 + 사용자 리스트 
 		public void Login() {
 			AppendText("새로운 참가자 " + UserName + " 입장.");
 			WriteOne("Welcome to Java chat server\n");
 			WriteOne(UserName + "님 환영합니다.\n"); // 연결된 사용자에게 정상접속을 알림
-			String msg = "[" + UserName + "]님이 입장 하였습니다.\n";
+			
+			//이때 내 자신에게 사용자 리스트를 보내야함(내 데이터는 빼고)
+			for (int i = 0; i < user_vc.size(); i++) {
+				UserService us = (UserService) user_vc.elementAt(i);
+				if(!us.UserName.equals(UserName))
+					WriteOneObject(new Data(us.user, "800", "userList"));
+			}
+			//사용자 리스트 끝
+			
+			String msg = "새로운 사용자가 입장 하였습니다.\n";
 			WriteOthers(msg); //아직 user_vc에 새로 입장한 user는 포함되지 않았다. (아직 추가하지 않았기에)
+			
+			//기존 사용자들의 사용자 리스트에 새로운 사용자 추가
+			Data sendData = new Data(user,"800","userList");
+			WriteOthersObject(sendData);
 		}
 
 		public void Logout() {
-			String msg = "[" + UserName + "]님이 퇴장 하였습니다.\n";
+			//사용자 리스트 갱신하라는 데이터 보내야함
+			String msg = "퇴장"; //Clientsms "퇴장"을 받으면 "801"(사용자 리스트 갱신해줘) 전송
 			UserVec.removeElement(this); // Logout한 현재 객체를 벡터에서 지운다
+			
 			WriteAll(msg); // 나를 제외한 다른 User들에게 전송(보내기전 벡터에서 삭제했기에 가능)
 			AppendText("사용자 " + "[" + UserName + "] 퇴장. 현재 참가자 수 " + UserVec.size());
 		}
@@ -218,6 +234,15 @@ public class GameServer extends JFrame {
 					user.WriteOne(str);
 			}
 		}
+		
+		// 나를 제외한 User들에게 방송. 각각의 UserService Thread의 WriteONe() 을 호출한다.
+		public void WriteOthersObject(Object ob) {
+			for (int i = 0; i < user_vc.size(); i++) {
+				UserService user = (UserService) user_vc.elementAt(i);
+				if (user != this && user.UserStatus == "O")
+					user.WriteOneObject(ob);
+			}
+		}	
 
 		// Windows 처럼 message 제외한 나머지 부분은 NULL 로 만들기 위한 함수
 		public byte[] MakePacket(String msg) {
@@ -304,6 +329,7 @@ public class GameServer extends JFrame {
 						break;
 					if (obcm instanceof Data) {
 						data = (Data) obcm;
+						System.out.println("Server: " + data.msg + " " + data.code+"\n");
 						AppendObject(data); //textArea에 보낸 사용자 + 프로토콜 + 메세지 출력
 					} else
 						continue;
@@ -317,8 +343,6 @@ public class GameServer extends JFrame {
 						AppendText(msg); // server 화면에 출력
 						//args[0]: 사용자 이름, args[1]: 메세지
 						String[] args = msg.split(" "); // 단어들을 분리한다.
-
-						System.out.println("sadasdasd\n");
 						WriteAllObject(data);
 					} else if (data.code.matches("201")) { //정답알림
 		                  
@@ -343,7 +367,13 @@ public class GameServer extends JFrame {
 		                  
 		            } else if (data.code.matches("701")) { //게임 종료 알림
 		                  
-		            } 
+		            } else if (data.code.matches("801")) { //사용자 리스트 갱신(아예 새로 받기)
+		            	for (int i = 0; i < user_vc.size(); i++) {
+							UserService us = (UserService) user_vc.elementAt(i);
+							if(us.UserName != UserName)
+								WriteOneObject(new Data(us.user, "800", "userList"));
+						}
+		            }
 				} catch (IOException e) {
 					AppendText("ois.readObject() error");
 					try {

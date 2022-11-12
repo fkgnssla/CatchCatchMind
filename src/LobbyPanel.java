@@ -197,6 +197,7 @@ public class LobbyPanel extends JPanel {
 					"닉네임", "이긴 횟수", "경험치"
 				}
 			));
+
 		scrollPane_2.setViewportView(onlineUserTable);
 		
 		//온라인 사용자
@@ -316,17 +317,35 @@ public class LobbyPanel extends JPanel {
 						break;
 					if (obcm instanceof Data) {
 						data = (Data) obcm;
-						System.out.println(data.msg + " " + data.code+"\n");
+						System.out.println("Client: " + data.msg + " " + data.code + data.user.name +"\n");
 						msg = String.format("[%s]\n%s", data.user.name, data.msg);
 					} else
 						continue;
+					//Server -> Client
 					switch (data.code) {
-					case "200": // chat message
-						if (data.user.name.equals(UserName))
-							AppendTextR(msg); // 내 메세지는 우측에
-						else
-							AppendText(msg);
-						break;
+						case "200": // chat message
+							if(data.msg.equals("퇴장")) { //사용자 리스트 갱신을 위해 사용자 리스트 초기화
+								DefaultTableModel model=(DefaultTableModel)onlineUserTable.getModel();
+								model.setRowCount(0); //사용자 리스트(JTable) 초기화
+
+								repaint();
+								
+								//모든 사용자의 리스트 요청
+								Data sendData = new Data(user,"801","userList update"); 
+								SendObject(sendData);
+							}
+							if (data.user.name.equals(UserName))
+								AppendTextR(msg); // 내 메세지는 우측에
+							else
+								AppendText(msg);
+							break;
+						case "800": //사용자리스트에 새로운 사용자 추가
+							User dataUser = data.user;
+							DefaultTableModel model=(DefaultTableModel)onlineUserTable.getModel();
+							String record[] = new String[] {dataUser.name, ""+dataUser.victoryCount, ""+dataUser.exp};
+							model.addRow(record);
+							break;
+							
 					}
 				} catch (IOException e) {
 					AppendText("ois.readObject() error");
