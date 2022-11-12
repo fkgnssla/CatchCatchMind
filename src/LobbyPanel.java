@@ -33,6 +33,8 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JList;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.ActionEvent;
 
 public class LobbyPanel extends JPanel {
@@ -64,6 +66,9 @@ public class LobbyPanel extends JPanel {
 	//음향
 	private Clip clip1; //배경음악
 	
+	private LobbyPanel lp;
+	private CreateRoomFrame crf;
+	
 	public LobbyPanel(String username, String ip_addr, String port_no) {
 		setBounds(100, 100, 863, 572);
 		setLayout(null);
@@ -73,6 +78,8 @@ public class LobbyPanel extends JPanel {
 //		clip1.start(); //배경음악 시작
 		//음향 종료
 		
+		lp = this;
+		
 		//메뉴바 시작
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBounds(0, 0, 863, 40);
@@ -81,6 +88,35 @@ public class LobbyPanel extends JPanel {
 		JLabel title = new JLabel(" CatchMind");
 		title.setFont(new Font("맑은 고딕", Font.BOLD, 16));
 		menuBar.add(title);
+		
+		JLabel lblNewLabel_2 = new JLabel("                                   ");
+		lblNewLabel_2.setFont(new Font("맑은 고딕", Font.ITALIC, 16));
+		menuBar.add(lblNewLabel_2);
+		
+		JLabel lblNewLabel_3 = new JLabel("                                   ");
+		lblNewLabel_3.setFont(new Font("맑은 고딕", Font.ITALIC, 16));
+		menuBar.add(lblNewLabel_3);
+		
+		JLabel lblNewLabel_4 = new JLabel("              ");
+		lblNewLabel_4.setFont(new Font("맑은 고딕", Font.ITALIC, 16));
+		menuBar.add(lblNewLabel_4);
+		
+		JLabel createRoomLabel = new JLabel("방 만들기");
+		createRoomLabel.setFont(new Font("맑은 고딕", Font.BOLD, 16));
+		createRoomLabel.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				crf = new CreateRoomFrame(lp);
+			}
+			public void mouseEntered(MouseEvent e) {
+				createRoomLabel.setFont(new Font("맑은 고딕",Font.BOLD,18));
+				createRoomLabel.setForeground(Color.WHITE);
+			}
+			public void mouseExited(MouseEvent e) {
+				createRoomLabel.setFont(new Font("맑은 고딕",Font.BOLD,16));
+				createRoomLabel.setForeground(Color.BLACK);
+			}
+		});
+		menuBar.add(createRoomLabel);
 		//메뉴바 끝
 		
 		//방 목록 시작
