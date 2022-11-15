@@ -60,8 +60,8 @@ public class GamePanel extends JPanel{
 		setBounds(100, 100, 863, 572);
 		
 		//음향 시작
-		loadAudioBack();
-		clip1.start(); //배경음악 시작
+//		loadAudioBack();
+//		clip1.start(); //배경음악 시작
 		//음향 종료
 		
 //		//메뉴바 시작

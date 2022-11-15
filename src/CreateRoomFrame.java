@@ -10,33 +10,23 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JTextField;
+import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
+import javax.swing.JRadioButton;
 
 public class CreateRoomFrame extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField textField;
-
-	/**
-	 * Launch the application.
-	 */
-//	public static void main(String[] args) {
-//		EventQueue.invokeLater(new Runnable() {
-//			public void run() {
-//				try {
-//					CreateRoomFrame frame = new CreateRoomFrame();
-//					frame.setVisible(true);
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		});
-//	}
-
-	/**
-	 * Create the frame.
-	 */
+	private static long id = 1;
+	private Room room;
+	private Data data;
+	private String title;
+	private LobbyPanel lp;
+	
 	public CreateRoomFrame(LobbyPanel lp) {
+		this.lp = lp;
+		
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 362, 351);
@@ -69,15 +59,19 @@ public class CreateRoomFrame extends JFrame {
 		lblNewLabel_1.setBounds(12, 188, 50, 15);
 		contentPane.add(lblNewLabel_1);
 		
-		JCheckBox chckbxNewCheckBox = new JCheckBox("3인용");
-		chckbxNewCheckBox.setFont(new Font("맑은 고딕", Font.PLAIN, 20));
-		chckbxNewCheckBox.setBounds(100, 184, 107, 23);
-		contentPane.add(chckbxNewCheckBox);
+		JRadioButton player3Radio = new JRadioButton("3인용");
+		player3Radio.setFont(new Font("맑은 고딕", Font.PLAIN, 16));
+		player3Radio.setBounds(100, 186, 68, 23);
+		contentPane.add(player3Radio);
 		
-		JCheckBox chckbxNewCheckBox_1 = new JCheckBox("4인용");
-		chckbxNewCheckBox_1.setFont(new Font("맑은 고딕", Font.PLAIN, 20));
-		chckbxNewCheckBox_1.setBounds(223, 184, 107, 23);
-		contentPane.add(chckbxNewCheckBox_1);
+		JRadioButton player4Radio = new JRadioButton("4인용");
+		player4Radio.setFont(new Font("맑은 고딕", Font.PLAIN, 16));
+		player4Radio.setBounds(186, 186, 68, 23);
+		contentPane.add(player4Radio);
+		
+		ButtonGroup group = new ButtonGroup();
+		group.add(player3Radio);
+		group.add(player4Radio);
 		
 		JLabel lblNewLabel_2 = new JLabel("생성하기");
 		lblNewLabel_2.setFont(new Font("맑은 고딕", Font.PLAIN, 24));
@@ -86,6 +80,16 @@ public class CreateRoomFrame extends JFrame {
 		lblNewLabel_2.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
 				//서버로 Room 데이터 보내고 Frame 종료
+				title = textField.getText();
+				if(player3Radio.isSelected()) {
+					createData("3인전"); //Data 설정
+					lp.SendObject(data);
+					dispose(); //프레임 종료
+				} else if(player4Radio.isSelected()) {
+					createData("4인전"); //Data 설정
+					lp.SendObject(data);
+					dispose(); //프레임 종료
+				}
 			}
 			public void mouseEntered(MouseEvent e) {
 				lblNewLabel_2.setFont(new Font("맑은 고딕",Font.BOLD,26));
@@ -100,6 +104,7 @@ public class CreateRoomFrame extends JFrame {
 		lblNewLabel_2_1.setFont(new Font("맑은 고딕", Font.PLAIN, 24));
 		lblNewLabel_2_1.setBounds(186, 249, 107, 33);
 		contentPane.add(lblNewLabel_2_1);
+		
 		lblNewLabel_2_1.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
 				//Frame 종료
@@ -113,5 +118,12 @@ public class CreateRoomFrame extends JFrame {
 				lblNewLabel_2_1.setForeground(Color.BLACK);
 			}
 		});
+	}
+	
+	public void createData(String mode) {
+		room = new Room(id, title, mode, lp.user);
+		room.userVec.add(lp.user);
+		data = new Data(lp.user, "600", "createRoom");
+		data.room = room;
 	}
 }

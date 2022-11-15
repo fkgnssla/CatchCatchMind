@@ -35,6 +35,7 @@ import javax.swing.JList;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.ActionEvent;
 
 public class LobbyPanel extends JPanel {
@@ -61,13 +62,16 @@ public class LobbyPanel extends JPanel {
 	private ObjectInputStream ois;
 	private ObjectOutputStream oos;
 	
-	User user;
+	public User user;
 	
 	//음향
 	private Clip clip1; //배경음악
 	
 	private LobbyPanel lp;
 	private CreateRoomFrame crf;
+	private GameFrame gf;
+	DefaultTableModel model;
+	String record[];
 	
 	public LobbyPanel(String username, String ip_addr, String port_no) {
 		setBounds(100, 100, 863, 572);
@@ -124,6 +128,7 @@ public class LobbyPanel extends JPanel {
 		scrollPane.setBounds(10, 50, 537, 343);
 		add(scrollPane);
 		
+		//방 목록 테이블
 		roomTable = new JTable();
 		scrollPane.setViewportView(roomTable);
 		roomTable.setModel(new DefaultTableModel(
@@ -131,8 +136,34 @@ public class LobbyPanel extends JPanel {
 			},
 			new String[] {
 				"방 번호", "모드", "방 제목", "방장", "현재 인원", "상태"
+			})
+			{
+				public boolean isCellEditable(int row, int column) {
+					return false;
+				}
 			}
-		));
+		);
+		roomTable.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) { // 더블클릭
+					int row = roomTable.getSelectedRow();
+					for (int i = 0; i < roomTable.getColumnCount(); i++) {
+						System.out.print(roomTable.getModel().getValueAt(row,i )+"\t"); 
+					}
+					//이때, 방 번호만 추출해서 서버에 보낸 뒤 해당 room 클라로 받고 게임입장하면 될 듯?
+				} 
+			}
+			@Override
+			public void mousePressed(MouseEvent e) {}
+			@Override
+			public void mouseReleased(MouseEvent e) {}
+			@Override
+			public void mouseEntered(MouseEvent e) {}
+			@Override
+			public void mouseExited(MouseEvent e) {}
+		});
 		
 		DefaultTableModel model = (DefaultTableModel)roomTable.getModel();
 		String test1[]= {"1","개인전","고수만","방구석피카소","1/6","대기중"};
@@ -225,14 +256,20 @@ public class LobbyPanel extends JPanel {
 		onlineUserLabel.setFont(new Font("맑은 고딕", Font.BOLD, 15));
 		scrollPane_2.setColumnHeaderView(onlineUserLabel);
 		
+		//사용자 리스트 테이블
 		onlineUserTable = new JTable();
 		onlineUserTable.setModel(new DefaultTableModel(
 				new Object[][] {
 				},
 				new String[] {
 					"닉네임", "이긴 횟수", "경험치"
+				})
+				{
+					public boolean isCellEditable(int row, int column) {
+						return false;
+					}
 				}
-			));
+		);
 
 		scrollPane_2.setViewportView(onlineUserTable);
 		
@@ -353,7 +390,7 @@ public class LobbyPanel extends JPanel {
 						break;
 					if (obcm instanceof Data) {
 						data = (Data) obcm;
-						System.out.println("Client: " + data.msg + " " + data.code + data.user.name +"\n");
+						System.out.println("Client: " + data.msg + " " + data.code + " " + data.user.name +"\n");
 						msg = String.format("[%s]\n%s", data.user.name, data.msg);
 					} else
 						continue;
@@ -375,13 +412,26 @@ public class LobbyPanel extends JPanel {
 							else
 								AppendText(msg);
 							break;
+						case "600": //방 생성
+							if(data.user.name.equals(UserName)) { //내가 생성한 경우(게임화면으로 이동)
+								gf = new GameFrame(lp);
+								gf.repaint();
+							} 
+							
+							//남이 생성한 경우(방 목록 테이블 추가)
+							//"방 번호", "모드", "방 제목", "방장", "현재 인원", "상태"
+							Room dataRoom = data.room;
+							model = (DefaultTableModel)roomTable.getModel();
+							record = new String[] {""+dataRoom.id, dataRoom.mode, dataRoom.title, dataRoom.admin.name, 
+									dataRoom.currentUserCount+"/"+dataRoom.maxUserCount, dataRoom.status};
+							model.addRow(record);
+							
 						case "800": //사용자리스트에 새로운 사용자 추가
 							User dataUser = data.user;
-							DefaultTableModel model=(DefaultTableModel)onlineUserTable.getModel();
-							String record[] = new String[] {dataUser.name, ""+dataUser.victoryCount, ""+dataUser.exp};
+							model = (DefaultTableModel)onlineUserTable.getModel();
+							record = new String[] {dataUser.name, ""+dataUser.victoryCount, ""+dataUser.exp};
 							model.addRow(record);
 							break;
-							
 					}
 				} catch (IOException e) {
 					AppendText("ois.readObject() error");

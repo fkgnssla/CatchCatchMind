@@ -39,6 +39,7 @@ public class GameServer extends JFrame {
 	private ServerSocket socket; // 서버소켓
 	private Socket client_socket; // accept() 에서 생성된 client 소켓
 	private Vector UserVec = new Vector(); // 연결된 사용자를 저장할 벡터
+	private Vector RoomVec = new Vector(); // 생성된 방을 저장할 벡터
 	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
 
 	/**
@@ -162,7 +163,7 @@ public class GameServer extends JFrame {
 		public String UserName = "";
 		public String UserStatus;
 
-		User user=null;
+		User user = null;
 		
 		public UserService(Socket client_socket) {
 			// TODO Auto-generated constructor stub
@@ -191,6 +192,15 @@ public class GameServer extends JFrame {
 					WriteOneObject(new Data(us.user, "800", "userList"));
 			}
 			//사용자 리스트 끝
+			
+			//이때 내 자신에게 방 리스트를 보내야함(내 데이터는 빼고)
+			for (int i = 0; i < RoomVec.size(); i++) {
+				Room roomData = (Room) RoomVec.elementAt(i);
+				Data sendData = new Data(new User("sample"), "600", "currentRoom");
+				sendData.room = roomData;
+				WriteOneObject(sendData);
+			}
+			//방 리스트 끝
 			
 			String msg = "새로운 사용자가 입장 하였습니다.\n";
 			WriteOthers(msg); //아직 user_vc에 새로 입장한 user는 포함되지 않았다. (아직 추가하지 않았기에)
@@ -271,8 +281,6 @@ public class GameServer extends JFrame {
 			} catch (IOException e) {
 				AppendText("dos.writeObject() error");
 				try {
-//					dos.close();
-//					dis.close();
 					ois.close();
 					oos.close();
 					client_socket.close();
@@ -314,7 +322,6 @@ public class GameServer extends JFrame {
 				try {
 					Object obcm = null;
 					String msg = null;
-//					ChatMsg cm = null;
 					Data data = null;
 					if (socket == null)
 						break;
@@ -355,7 +362,12 @@ public class GameServer extends JFrame {
 		            } else if (data.code.matches("500")) { //마우스 이벤트
 		                WriteAllObject(data);
 		            } else if (data.code.matches("600")) { //방 생성
-		                Room room = new Room();
+		                System.out.println("잘 받았다리~\n");
+		                RoomVec.add(data.room); //벡터에 저장
+		                //방 만든 사용자에게 게임화면으로 이동하라고 송신 "600" => data의 user와 이름이 같으면 이동
+		                WriteOneObject(data);
+		                //모든 사용자에게 방 목록 추가됐음을 알리는 데이터 송신 "600"
+		                WriteOthersObject(data);
 		            } else if (data.code.matches("601")) { //방 입장
 		            	Room room = data.room;
 		                room.addUser(); //방에 사용자 입장
