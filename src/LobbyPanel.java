@@ -415,6 +415,7 @@ public class LobbyPanel extends JPanel {
 						case "600": //방 생성
 							if(data.user.name.equals(UserName)) { //내가 생성한 경우(게임화면으로 이동)
 								gf = new GameFrame(lp);
+								gf.revalidate();
 								gf.repaint();
 							} 
 							
