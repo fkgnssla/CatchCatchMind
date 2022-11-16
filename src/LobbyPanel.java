@@ -76,7 +76,6 @@ public class LobbyPanel extends JPanel {
 	public LobbyPanel(String username, String ip_addr, String port_no) {
 		setBounds(100, 100, 863, 572);
 		setLayout(null);
-		
 		//음향 시작
 //		loadAudioBack();
 //		clip1.start(); //배경음악 시작
@@ -164,10 +163,6 @@ public class LobbyPanel extends JPanel {
 			@Override
 			public void mouseExited(MouseEvent e) {}
 		});
-		
-		DefaultTableModel model = (DefaultTableModel)roomTable.getModel();
-		String test1[]= {"1","개인전","고수만","방구석피카소","1/6","대기중"};
-		model.addRow(test1); //방 생성
 		//방 목록 끝
 		
 		//전체채팅 시작

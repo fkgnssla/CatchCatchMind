@@ -5,7 +5,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 public class GameFrame extends JFrame{
-	private JPanel contentPane;
+	private GamePanel contentPane;
 	private LobbyPanel lp;
 	
 	public GameFrame(LobbyPanel lp) {
@@ -20,6 +20,7 @@ public class GameFrame extends JFrame{
 		contentPane.setBorder(new EmptyBorder(5,5,5,5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
+		contentPane.init(); //그래픽 요소 초기화
 	}
 	
 //	public static void main(String[] args) {

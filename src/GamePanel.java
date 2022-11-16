@@ -1,8 +1,10 @@
 
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 
 import javax.sound.sampled.AudioInputStream;
@@ -16,7 +18,15 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.border.LineBorder;
+
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.awt.image.ImageObserver;
 import java.io.File;
 import java.awt.event.ActionEvent;
 
@@ -29,7 +39,7 @@ public class GamePanel extends JPanel{
 	private ImageIcon titleImg = new ImageIcon("src/image/title.png");
 	private ImageIcon wordImg = new ImageIcon("src/image/showword.png");
 	
-	private JPanel contentPane;
+	private JPanel drawPanel;
 	private JPanel colorBar;
 	private JPanel userPanel;
 	private JTextField textField;
@@ -55,9 +65,23 @@ public class GamePanel extends JPanel{
 	//음향
 	private Clip clip1; //배경음악
 	
+	//Draw용 속성 시작=====================================
+	int startX; 
+	int startY; 
+	int endX; 
+	int endY;
+	    
+	private Graphics gc;
+	private Graphics2D g2d;
+	private int pen_size = 2; // minimum 2
+		
+	// 그려진 Image를 보관하는 용도, paint() 함수에서 이용한다.
+	private Image panelImage = null; 
+	//Draw용 속성 끝======================================
+	
 	public GamePanel() {
 		setLayout(null);
-		setBounds(100, 100, 863, 572);
+		setBounds(0, 0, 863, 572);
 		
 		//음향 시작
 //		loadAudioBack();
@@ -75,12 +99,12 @@ public class GamePanel extends JPanel{
 		//메뉴바 끝
 		
 		//------그림 화면
-		contentPane = new JPanel();
-		contentPane.setBounds(210, 136, 428, 314);
-		contentPane.setForeground(new Color(0, 0, 0));
-		contentPane.setBackground(Color.WHITE);
-		contentPane.setLayout(null);
-		add(contentPane);
+		drawPanel = new JPanel();
+		drawPanel.setBounds(210, 136, 428, 314);
+		drawPanel.setForeground(new Color(0, 0, 0));
+		drawPanel.setBackground(Color.WHITE);
+		drawPanel.setLayout(null);
+		add(drawPanel);
 		
 		JLabel canvasLabel = new JLabel(canvasImg);
 		canvasLabel.setBounds(200, 100, 450, 30);
@@ -272,13 +296,79 @@ public class GamePanel extends JPanel{
 		btnPic.setBounds(79, 430, 75, 30);
 		add(btnPic);
 		//------게임 시작 나가기 버튼 끝
+		
+		//버튼 이벤트 주기===============================
+		btnEraser.addActionListener(new ActionListener() { //지우개 버튼
+			@Override
+			public void actionPerformed(ActionEvent e) {
+//				ChatMsg obcm = new ChatMsg(UserName, "700", "erase");
+//				SendObject(obcm);
+				g2d.setColor(Color.WHITE);
+			}
+		});
+		
+		btnBlack.addActionListener(new ActionListener() { //검정색 버튼
+			@Override
+			public void actionPerformed(ActionEvent e) {
+//				ChatMsg obcm = new ChatMsg(UserName, "701", "pen");
+//				SendObject(obcm);
+				g2d.setColor(Color.BLACK);
+			}
+		});
+		
+		btnBlue.addActionListener(new ActionListener() { //파란색 버튼
+			@Override
+			public void actionPerformed(ActionEvent e) {
+//				ChatMsg obcm = new ChatMsg(UserName, "701", "pen");
+//				SendObject(obcm);
+				g2d.setColor(Color.BLUE);
+			}
+		});
+		
+		btnGreen.addActionListener(new ActionListener() { //초록색 버튼
+			@Override
+			public void actionPerformed(ActionEvent e) {
+//				ChatMsg obcm = new ChatMsg(UserName, "701", "pen");
+//				SendObject(obcm);
+				g2d.setColor(Color.GREEN);
+			}
+		});
+		
+		btnYellow.addActionListener(new ActionListener() { //노란색 버튼
+			@Override
+			public void actionPerformed(ActionEvent e) {
+//				ChatMsg obcm = new ChatMsg(UserName, "701", "pen");
+//				SendObject(obcm);
+				g2d.setColor(Color.YELLOW);
+			}
+		});
+		
+		btnRed.addActionListener(new ActionListener() { //빨간색 버튼
+			@Override
+			public void actionPerformed(ActionEvent e) {
+//				ChatMsg obcm = new ChatMsg(UserName, "701", "pen");
+//				SendObject(obcm);
+				g2d.setColor(Color.RED);
+			}
+		});
+		
+		btnClear.addActionListener(new ActionListener() { //초기화 버튼
+			@Override
+			public void actionPerformed(ActionEvent e) {
+//				ChatMsg obcm = new ChatMsg(UserName, "701", "pen");
+//				SendObject(obcm);
+				g2d.setColor(Color.WHITE); //그리는 색상 => panel의 배경색
+				g2d.fillRect(0,0, drawPanel.getWidth(),  drawPanel.getHeight());
+				gc.drawImage(panelImage, 0, 0, drawPanel);
+			}
+		});
+		//버튼 이벤트 주기===============================
 	
 	}
 	
 	public void paintComponent(Graphics g) {
 		super.paintComponents(g);
 		g.drawImage(gamebackground, 0, 0, getWidth(), getHeight(), this);
-		
 	}
 	
 	public void loadAudioBack() {
@@ -291,4 +381,122 @@ public class GamePanel extends JPanel{
 		catch (Exception e) {return;}
 	}
 	
+	public void init() {
+		gc = drawPanel.getGraphics(); //panel 컴포넌트의 Graphics 객체를 반환한다.
+		
+		// Image 영역 보관용. paint() 에서 이용한다.
+		panelImage = createImage(drawPanel.getWidth(), drawPanel.getHeight()); //panel의 크기를 가진 이미지 생성
+		g2d = (Graphics2D)panelImage.getGraphics(); //panelImage 컴포넌트의 Graphics 객체를 반환한다.
+		g2d.setStroke(new BasicStroke(6, BasicStroke.CAP_ROUND,0)); //굵기 6으로 설정
+		
+		//그림판 패널인 panel과 일치시키기
+		g2d.setColor(drawPanel.getBackground()); //그리는 색상 => panel의 배경색
+		g2d.fillRect(0,0, drawPanel.getWidth(),  drawPanel.getHeight()); //panel 크기만큼 사각형으로 채우기 => background-color 넣는 느낌
+		g2d.setColor(Color.BLACK); //그리는 색상 => 검정
+		
+		MyMouseEvent mouse = new MyMouseEvent();
+		drawPanel.addMouseMotionListener(mouse);
+		drawPanel.addMouseListener(mouse);
+	}
+	
+	class MyMouseWheelEvent implements MouseWheelListener {
+		@Override
+		public void mouseWheelMoved(MouseWheelEvent e) {
+		}
+		
+	}
+	// Mouse Event Handler
+	class MyMouseEvent implements MouseListener, MouseMotionListener {
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			//도전과제 시작
+			endX = e.getX(); 
+            endY = e.getY(); 
+
+            g2d.drawLine(startX, startY, endX, endY);       
+            gc.drawImage(panelImage, 0, 0, drawPanel);
+            
+            startX = endX; 
+            startY = endY;
+			//도전과제 끝
+			
+			//도전과제 지우기 시작 (Color 하얀색으로 바꾸고 그리면 될 듯??)
+			
+			//도전과제 지우기 끝
+			
+			//보이는 화면 갱신
+//			gc.drawImage(panelImage, 0, 0, panel); //얘가 repaint() 역할
+//			SendMouseEvent(e);
+		}
+
+		@Override
+		public void mouseMoved(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+//			Color c = new Color(0,0,255);
+//			vStart.add(e.getPoint());
+//			for (int i = 1; i < vStart.size(); i++) {
+//				if (vStart.get(i - 1) == null)
+//					continue;
+//				else if (vStart.get(i) == null)
+//					continue;
+//				else {
+//					g2d.drawLine((int) vStart.get(i - 1).getX(), (int) vStart.get(i - 1).getY(),
+//							(int) vStart.get(i).getX(), (int) vStart.get(i).getY());
+//				}
+//			}
+			
+			endX = e.getX(); 
+            endY = e.getY(); 
+			g2d.drawLine(startX, startY, endX, endY);  
+			gc.drawImage(panelImage, 0, 0, drawPanel);
+			
+//			ChatMsg cm = new ChatMsg(UserName, "502", "MOUSE");
+//    		cm.mouse_e = e;
+//    		cm.pen_size = pen_size;
+//    		SendObject(cm);
+			
+//			ChatMsg cm = new ChatMsg(UserName, "502", "MOUSE");
+//    		cm.mouse_e = e;
+//    		cm.pen_size = pen_size;
+//    		SendObject(cm);
+//    		System.out.println(cm.code + " dsd\n");
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// panel.setBackground(Color.YELLOW);
+
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// panel.setBackground(Color.CYAN);
+
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			startX = e.getX(); //마우스가 눌렸을때 그때의 X좌표값으로 초기화
+            startY = e.getY(); //마우스가 눌렸을때 그때의 Y좌표값으로 초기화
+            
+//            ChatMsg cm = new ChatMsg(UserName, "501", "MOUSE");
+//    		cm.mouse_e = e;
+//    		cm.pen_size = pen_size;
+//    		SendObject(cm);
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			// 드래그중 멈출시 보임
+			gc.drawImage(panelImage, 0, 0, drawPanel);
+//			ChatMsg cm = new ChatMsg(UserName, "502", "MOUSE");
+//    		cm.mouse_e = e;
+//    		cm.pen_size = pen_size;
+//    		SendObject(cm);
+//    		System.out.println(cm.code + " dsd\n");
+		}
+	}
 }
