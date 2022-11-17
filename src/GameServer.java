@@ -368,11 +368,29 @@ public class GameServer extends JFrame {
 		                WriteOneObject(data);
 		                //모든 사용자에게 방 목록 추가됐음을 알리는 데이터 송신 "600"
 		                WriteOthersObject(data);
-		            } else if (data.code.matches("601")) { //방 입장
-		            	Room room = data.room;
-		                room.addUser(); //방에 사용자 입장
-		                data.user.room = room;
-		            } else if (data.code.matches("602")) { //방 퇴장
+		            } 
+		            else if (data.code.matches("601")) { //방 입장
+		            	int roomID = Integer.parseInt(data.msg);
+		            	System.out.println("roomID : " + roomID);
+		            	//Room room = data.room;
+		            	//roomID 비교해서 찾기
+		            	for(int i=0; i < RoomVec.size(); i++) { 
+		            		Room roomData = (Room)RoomVec.get(i);
+		            		if(roomData.id == roomID) //id같으면
+		            		{
+		            			roomData.addUser(); //방에 사용자 입장
+		            			roomData.userVec.add(data.user);
+		            			System.out.println(roomData.currentUserCount);
+		            			//사용자 클라에 방 입장 송신
+		            			Data rdata = new Data(data.user, "601", "enterRoom");
+		            			rdata.room = roomData;
+		            			rdata.room.id = roomID;
+		            			WriteOneObject(rdata);
+		            			//data.user.room = room;
+		            		}
+		            	}
+		            }
+		            else if (data.code.matches("602")) { //방 퇴장
 		                Room room = data.room;
 		                room.deleteUser(); //방에 사용자 퇴장
 		            } else if (data.code.matches("700")) { //해당 판의 남은 시간

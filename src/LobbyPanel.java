@@ -47,6 +47,7 @@ public class LobbyPanel extends JPanel {
 	private Image background = new ImageIcon(LobbyPanel.class.getResource("image/back.png")).getImage();
 	private JTable roomTable; //방 목록 테이블
 	private JTable onlineUserTable; //온라인 사용자 테이블
+	private String curRoomID;
 	
 	private JTextPane textArea;
 	private JButton btnSend;
@@ -70,6 +71,7 @@ public class LobbyPanel extends JPanel {
 	private LobbyPanel lp;
 	private CreateRoomFrame crf;
 	private GameFrame gf;
+	private GameFrame gf2;
 	DefaultTableModel model;
 	String record[];
 	
@@ -149,9 +151,18 @@ public class LobbyPanel extends JPanel {
 				if (e.getClickCount() == 2) { // 더블클릭
 					int row = roomTable.getSelectedRow();
 					for (int i = 0; i < roomTable.getColumnCount(); i++) {
-						System.out.print(roomTable.getModel().getValueAt(row,i )+"\t"); 
+						System.out.print(roomTable.getModel().getValueAt(row,i )+"\t");
 					}
 					//이때, 방 번호만 추출해서 서버에 보낸 뒤 해당 room 클라로 받고 게임입장하면 될 듯?
+					curRoomID = (String) roomTable.getValueAt(row, 0);
+					String curRoomMode = (String) roomTable.getValueAt(row, 1);
+					String curRoomTitle = (String) roomTable.getValueAt(row, 2);
+					//Object curAdmin = roomTable.getValueAt(row, 3);
+					//Object curRoomUsers = roomTable.getValueAt(row, 4);
+					
+					Data data = new Data(user, "601", curRoomID);
+					//data.room = room;
+					SendObject(data);
 				} 
 			}
 			@Override
@@ -421,6 +432,13 @@ public class LobbyPanel extends JPanel {
 							record = new String[] {""+dataRoom.id, dataRoom.mode, dataRoom.title, dataRoom.admin.name, 
 									dataRoom.currentUserCount+"/"+dataRoom.maxUserCount, dataRoom.status};
 							model.addRow(record);
+							
+						case "601": //방 입장 
+							if(data.msg.equals("enterRoom")) {
+								gf2 = new GameFrame(lp);
+								gf2.revalidate();
+								gf2.repaint();
+							}
 							
 						case "800": //사용자리스트에 새로운 사용자 추가
 							User dataUser = data.user;
