@@ -407,9 +407,15 @@ public class LobbyPanel extends JPanel {
 							else
 								AppendText(msg);
 							break;
+						case "500":
+						case "501":
+						case "502":
+						case "503":
+							gf.DoMouseEvent(data);
+							break;
 						case "600": //방 생성
 							if(data.user.name.equals(UserName)) { //내가 생성한 경우(게임화면으로 이동)
-								gf = new GameFrame(lp);
+								gf = new GameFrame(lp, user);
 								gf.revalidate();
 								gf.repaint();
 							} 

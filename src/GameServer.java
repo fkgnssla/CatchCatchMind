@@ -359,8 +359,13 @@ public class GameServer extends JFrame {
 		                  
 		            } else if (data.code.matches("400")) { //키워드 받기
 		                  
-		            } else if (data.code.matches("500")) { //마우스 이벤트
-		                WriteAllObject(data);
+		            } else if (data.code.matches("500") || data.code.matches("501") || data.code.matches("502")) { //마우스 이벤트
+		            	//지금은 게임화면을 보는 모든 사용자에게 보내지만 나중엔 해당 방의 사용자들에게만 보내야한다.
+		            	WriteOthersObject(data);
+		            } else if (data.code.matches("503")) { //펜 색상 변경
+		            	//지금은 게임화면을 보는 모든 사용자에게 보내지만 나중엔 해당 방의 사용자들에게만 보내야한다.
+		            	System.out.println("펜 색상 변경\n");
+		            	WriteOthersObject(data);
 		            } else if (data.code.matches("600")) { //방 생성
 		                System.out.println("잘 받았다리~\n");
 		                RoomVec.add(data.room); //벡터에 저장

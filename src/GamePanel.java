@@ -28,6 +28,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.ImageObserver;
 import java.io.File;
+import java.io.IOException;
 import java.awt.event.ActionEvent;
 
 public class GamePanel extends JPanel{
@@ -79,7 +80,14 @@ public class GamePanel extends JPanel{
 	private Image panelImage = null; 
 	//Draw용 속성 끝======================================
 	
-	public GamePanel() {
+	private LobbyPanel lp;
+	private User user;
+	// Mouse Event 수신 처리
+	boolean flag = false;
+	
+	public GamePanel(LobbyPanel lp, User user) {
+		this.lp = lp;
+		this.user = user;
 		setLayout(null);
 		setBounds(0, 0, 863, 572);
 		
@@ -301,8 +309,8 @@ public class GamePanel extends JPanel{
 		btnEraser.addActionListener(new ActionListener() { //지우개 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
-//				ChatMsg obcm = new ChatMsg(UserName, "700", "erase");
-//				SendObject(obcm);
+				Data data = new Data(user, "503", "erase");
+				SendObject(data);
 				g2d.setColor(Color.WHITE);
 			}
 		});
@@ -310,8 +318,8 @@ public class GamePanel extends JPanel{
 		btnBlack.addActionListener(new ActionListener() { //검정색 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
-//				ChatMsg obcm = new ChatMsg(UserName, "701", "pen");
-//				SendObject(obcm);
+				Data data = new Data(user, "503", "black");
+				SendObject(data);
 				g2d.setColor(Color.BLACK);
 			}
 		});
@@ -319,8 +327,8 @@ public class GamePanel extends JPanel{
 		btnBlue.addActionListener(new ActionListener() { //파란색 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
-//				ChatMsg obcm = new ChatMsg(UserName, "701", "pen");
-//				SendObject(obcm);
+				Data data = new Data(user, "503", "blue");
+				SendObject(data);
 				g2d.setColor(Color.BLUE);
 			}
 		});
@@ -328,8 +336,8 @@ public class GamePanel extends JPanel{
 		btnGreen.addActionListener(new ActionListener() { //초록색 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
-//				ChatMsg obcm = new ChatMsg(UserName, "701", "pen");
-//				SendObject(obcm);
+				Data data = new Data(user, "503", "green");
+				SendObject(data);
 				g2d.setColor(Color.GREEN);
 			}
 		});
@@ -337,8 +345,8 @@ public class GamePanel extends JPanel{
 		btnYellow.addActionListener(new ActionListener() { //노란색 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
-//				ChatMsg obcm = new ChatMsg(UserName, "701", "pen");
-//				SendObject(obcm);
+				Data data = new Data(user, "503", "yellow");
+				SendObject(data);
 				g2d.setColor(Color.YELLOW);
 			}
 		});
@@ -346,8 +354,9 @@ public class GamePanel extends JPanel{
 		btnRed.addActionListener(new ActionListener() { //빨간색 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
-//				ChatMsg obcm = new ChatMsg(UserName, "701", "pen");
-//				SendObject(obcm);
+				System.out.println("Red\n");
+				Data data = new Data(user, "503", "red");
+				SendObject(data);
 				g2d.setColor(Color.RED);
 			}
 		});
@@ -355,8 +364,8 @@ public class GamePanel extends JPanel{
 		btnClear.addActionListener(new ActionListener() { //초기화 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
-//				ChatMsg obcm = new ChatMsg(UserName, "701", "pen");
-//				SendObject(obcm);
+				Data data = new Data(user, "503", "drawPanelInit");
+				SendObject(data);
 				g2d.setColor(Color.WHITE); //그리는 색상 => panel의 배경색
 				g2d.fillRect(0,0, drawPanel.getWidth(),  drawPanel.getHeight());
 				gc.drawImage(panelImage, 0, 0, drawPanel);
@@ -418,15 +427,8 @@ public class GamePanel extends JPanel{
             
             startX = endX; 
             startY = endY;
-			//도전과제 끝
-			
-			//도전과제 지우기 시작 (Color 하얀색으로 바꾸고 그리면 될 듯??)
-			
-			//도전과제 지우기 끝
-			
-			//보이는 화면 갱신
-//			gc.drawImage(panelImage, 0, 0, panel); //얘가 repaint() 역할
-//			SendMouseEvent(e);
+            
+			SendMouseEvent(e);
 		}
 
 		@Override
@@ -458,10 +460,9 @@ public class GamePanel extends JPanel{
 //    		cm.pen_size = pen_size;
 //    		SendObject(cm);
 			
-//			ChatMsg cm = new ChatMsg(UserName, "502", "MOUSE");
-//    		cm.mouse_e = e;
-//    		cm.pen_size = pen_size;
-//    		SendObject(cm);
+			Data data = new Data(user, "502", "MOUSE");
+			data.mouse_e = e;
+    		SendObject(data);
 //    		System.out.println(cm.code + " dsd\n");
 		}
 
@@ -482,21 +483,89 @@ public class GamePanel extends JPanel{
 			startX = e.getX(); //마우스가 눌렸을때 그때의 X좌표값으로 초기화
             startY = e.getY(); //마우스가 눌렸을때 그때의 Y좌표값으로 초기화
             
-//            ChatMsg cm = new ChatMsg(UserName, "501", "MOUSE");
-//    		cm.mouse_e = e;
-//    		cm.pen_size = pen_size;
-//    		SendObject(cm);
+            Data data = new Data(user, "501", "MOUSE");
+            data.mouse_e = e;
+    		SendObject(data);
 		}
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
 			// 드래그중 멈출시 보임
 			gc.drawImage(panelImage, 0, 0, drawPanel);
-//			ChatMsg cm = new ChatMsg(UserName, "502", "MOUSE");
-//    		cm.mouse_e = e;
-//    		cm.pen_size = pen_size;
-//    		SendObject(cm);
+			Data data = new Data(user, "502", "MOUSE");
+			data.mouse_e = e;
+    		SendObject(data);
 //    		System.out.println(cm.code + " dsd\n");
 		}
 	}
+	
+		//Mouse Event 수신 처리(그림판)
+		public void DoMouseEvent(Data data) {
+//			lp.SendObject();
+//			Color c;
+//			c = new Color(255, 0, 0); // 다른 사람 것은 Red
+//			g2d.setColor(c);
+			
+			if((startX == 0 && startY == 0) || flag) {//처음 그릴 때
+				startX = data.mouse_e.getX(); 	
+				startY = data.mouse_e.getY();
+				flag = false;
+				g2d.drawLine(startX, startY, data.mouse_e.getX(), data.mouse_e.getY());   
+				gc.drawImage(panelImage, 0, 0, drawPanel);
+				return;
+			}
+			if(data.code.equals("502")) { //드래그하다 놓은 경우
+				System.out.println("Sda\n");
+				flag = true;
+			}
+			
+			//dragged이면
+			if(data.code.equals("500")) {
+				endX = data.mouse_e.getX(); 
+		        endY = data.mouse_e.getY(); 
+		
+		        g2d.drawLine(startX, startY, endX, endY);       
+		        gc.drawImage(panelImage, 0, 0, drawPanel);
+		        
+		        startX = endX; 
+		        startY = endY;
+			}
+			//pressed이면
+			else if(data.code.equals("501")) {
+				startX = endX; 	
+				startY = endY;
+			}
+		}
+		
+		public void DoGameEvent(Data data) {
+			if(data.code.equals("503")) { //색상 버튼, 지우개 버튼, 전체 지우기 버튼 
+				if(data.msg.equals("erase"))
+					g2d.setColor(Color.WHITE);
+				else if(data.msg.equals("black"))
+					g2d.setColor(Color.BLACK);
+				else if(data.msg.equals("red"))
+					g2d.setColor(Color.RED);
+				else if(data.msg.equals("blue"))
+					g2d.setColor(Color.BLUE);
+				else if(data.msg.equals("green"))
+					g2d.setColor(Color.GREEN);
+				else if(data.msg.equals("yellow"))
+					g2d.setColor(Color.YELLOW);
+				else if(data.msg.equals("drawPanelInit")) {
+					g2d.setColor(Color.WHITE); //그리는 색상 => panel의 배경색
+					g2d.fillRect(0,0, drawPanel.getWidth(),  drawPanel.getHeight());
+					gc.drawImage(panelImage, 0, 0, drawPanel);
+				}
+			}
+		}
+		// Mouse Event 송신 처리
+		public void SendMouseEvent(MouseEvent e) {
+			Data data = new Data(user, "500", "MOUSE");
+			data.mouse_e = e;
+			lp.SendObject(data);
+		}
+		
+		public void SendObject(Object ob) { // 서버로 메세지를 보내는 메소드
+			lp.SendObject(ob);
+		}
 }
