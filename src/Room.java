@@ -11,7 +11,7 @@ public class Room implements Serializable {
 	int maxUserCount; //최대 인원 수
 	String status; //현재 상태(대기중, 게임중)
 	boolean allReady = false; //모두 준비했는지
-	Vector<User> userVec = new Vector<User>(); //방에 있는 사용자
+//	Vector<User> userVec = new Vector<User>(); //방에 있는 사용자
 	
 	//사용자 입장
 	public void addUser() {
@@ -22,8 +22,7 @@ public class Room implements Serializable {
 		currentUserCount-=1;
 	}
 	
-	public Room(long id, String title, String mode, User admin) {
-		this.id = id;
+	public Room(String title, String mode, User admin) {
 		this.title = title;
 		this.mode = mode;
 		this.admin = admin;
@@ -31,4 +30,7 @@ public class Room implements Serializable {
 		else if(mode.equals("4인전")) maxUserCount = 4;
 		this.status = "대기중";
 	}
+
+	
+	
 }

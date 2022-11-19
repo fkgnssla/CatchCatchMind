@@ -71,7 +71,6 @@ public class LobbyPanel extends JPanel {
 	private LobbyPanel lp;
 	private CreateRoomFrame crf;
 	private GameFrame gf;
-	private GameFrame gf2;
 	DefaultTableModel model;
 	String record[];
 	
@@ -153,6 +152,7 @@ public class LobbyPanel extends JPanel {
 					for (int i = 0; i < roomTable.getColumnCount(); i++) {
 						System.out.print(roomTable.getModel().getValueAt(row,i )+"\t");
 					}
+//					roomTable.setValueAt(data.room.currentUserCount+"/"+data.room.maxUserCount, row, 4);
 					//이때, 방 번호만 추출해서 서버에 보낸 뒤 해당 room 클라로 받고 게임입장하면 될 듯?
 					curRoomID = (String) roomTable.getValueAt(row, 0);
 					String curRoomMode = (String) roomTable.getValueAt(row, 1);
@@ -438,13 +438,34 @@ public class LobbyPanel extends JPanel {
 							record = new String[] {""+dataRoom.id, dataRoom.mode, dataRoom.title, dataRoom.admin.name, 
 									dataRoom.currentUserCount+"/"+dataRoom.maxUserCount, dataRoom.status};
 							model.addRow(record);
-							
+							break;
 						case "601": //방 입장 
 							if(data.msg.equals("enterRoom")) {
-								gf2 = new GameFrame(lp);
-								gf2.revalidate();
-								gf2.repaint();
+								
+								System.out.println(data.room.id + " " + data.room.title + " " + data.room.mode + " " + data.room.currentUserCount+"\n");
+//								System.out.println(data.user.room); => null, Room 객체를  따로 받아주면 해결가능, 객체 안의 객체는 못 받는다!
+								user.room = data.room; //여기서 받아줘야함. (GameServer의 user와 LobbyPanel의 user는 다르다!)
+								//Server와 Client는 그냥 데이터만 받아주는 것. 복사하는 느낌.
+								System.out.println("받은 User: " + data.user);
+								System.out.println("받은 Room:  " + data.user.room.id + " " + data.user.room.currentUserCount +" " +data.user.room.title );
+								user.loca = data.user.loca;
+								
+								gf = new GameFrame(lp, user);
+								gf.revalidate();
+								gf.repaint();
+							} 
+							else { //방 목록 갱신
+								System.out.println(data.room.id + " " + data.room.title + " " + data.room.mode + " " + data.room.currentUserCount+"\n");
+								int row = roomTable.getSelectedRow();
+								for (int i = 0; i < roomTable.getColumnCount(); i++) {
+									if(roomTable.getModel().getValueAt(i,0).equals(data.msg)) {
+										roomTable.setValueAt(data.room.currentUserCount+"/"+data.room.maxUserCount, i, 4);
+										break;
+									}
+								}
 							}
+							break;
+						case "603":
 							
 						case "800": //사용자리스트에 새로운 사용자 추가
 							User dataUser = data.user;

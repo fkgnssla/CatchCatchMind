@@ -41,7 +41,7 @@ public class GameServer extends JFrame {
 	private Vector UserVec = new Vector(); // 연결된 사용자를 저장할 벡터
 	private Vector RoomVec = new Vector(); // 생성된 방을 저장할 벡터
 	private static final int BUF_LEN = 128; // Windows 처럼 BUF_LEN 을 정의
-
+	private static int roomId = 1;
 	/**
 	 * Launch the application.
 	 */
@@ -163,7 +163,9 @@ public class GameServer extends JFrame {
 		public String UserName = "";
 		public String UserStatus;
 
-		User user = null;
+		//user나 room을 Data 객체에 넣는 경우 값이 안 바뀌어 있을 수 있기에 확인용도로만 사용추천
+		public User user = null; 
+		public Room room = null; 
 		
 		public UserService(Socket client_socket) {
 			// TODO Auto-generated constructor stub
@@ -316,6 +318,31 @@ public class GameServer extends JFrame {
 			}
 		}
 		
+		public User newUser(User user) {
+			User sendUser = new User(user.name);
+			sendUser.victoryCount = user.victoryCount;
+			sendUser.exp = user.exp;
+			sendUser.gold = user.gold;
+			sendUser.consonantItem = user.consonantItem;
+			sendUser.firstLetterItem = user.firstLetterItem;
+			sendUser.ready = user.ready;
+			sendUser.room = user.room;
+			sendUser.loca = user.loca;
+			
+			return sendUser;
+		}
+		
+		public Room newRoom(Room room) {
+			Room sendRoom = new Room(room.title, room.mode, room.admin);
+			sendRoom.id = room.id;
+			sendRoom.currentUserCount = room.currentUserCount;
+			sendRoom.maxUserCount = room.maxUserCount;
+			sendRoom.status = room.status;
+			sendRoom.allReady = room.allReady;
+			
+			return sendRoom;
+		}
+		
 		//각각의 사용자마다 돌아가는 스레드이다.
 		public void run() {
 			while (true) { // 사용자 접속을 계속해서 받기 위해 while문
@@ -344,6 +371,7 @@ public class GameServer extends JFrame {
 						UserName = data.user.name;
 						UserStatus = "O"; // Online 상태
 						user = data.user;
+						System.out.println(user + " " + data.user + "\n");
 						Login();
 					} else if (data.code.matches("200")) { //채팅
 						msg = String.format("[%s] %s", data.user.name, data.msg);
@@ -360,14 +388,33 @@ public class GameServer extends JFrame {
 		            } else if (data.code.matches("400")) { //키워드 받기
 		                  
 		            } else if (data.code.matches("500") || data.code.matches("501") || data.code.matches("502")) { //마우스 이벤트
-		            	//지금은 게임화면을 보는 모든 사용자에게 보내지만 나중엔 해당 방의 사용자들에게만 보내야한다.
-		            	WriteOthersObject(data);
+		            	System.out.println(user.name + " " + room.id + ": MOUSE\n");
+		            	
+		            	//해당 방의 사용자들에게만 보낸다.
+		            	for(int i=0; i < user_vc.size(); i++) { 
+		            		//속해있는 사용자에게 마우스이벤트를 보낸다.
+		            		UserService usData = (UserService)user_vc.get(i);
+		            		if(usData.room!=null) { //방이 있는 UserService만 판단
+			            		if(usData.room.id == room.id) {
+			            			usData.WriteOneObject(data);
+			            		}
+		            		}
+		            	}
 		            } else if (data.code.matches("503")) { //펜 색상 변경
-		            	//지금은 게임화면을 보는 모든 사용자에게 보내지만 나중엔 해당 방의 사용자들에게만 보내야한다.
-		            	System.out.println("펜 색상 변경\n");
-		            	WriteOthersObject(data);
+		            	//해당 방의 사용자들에게만 보낸다.
+		            	for(int i=0; i < user_vc.size(); i++) { 
+		            		//속해있는 사용자에게 마우스이벤트를 보낸다.
+		            		UserService usData = (UserService)user_vc.get(i);
+		            		if(usData.room!=null) { //방이 있는 UserService만 판단
+			            		if(usData.room.id == room.id) {
+			            			usData.WriteOneObject(data);
+			            		}
+		            		}
+		            	}
 		            } else if (data.code.matches("600")) { //방 생성
 		                System.out.println("잘 받았다리~\n");
+		                data.room.id = (roomId++);
+		                room = data.room; //현재 방
 		                RoomVec.add(data.room); //벡터에 저장
 		                //방 만든 사용자에게 게임화면으로 이동하라고 송신 "600" => data의 user와 이름이 같으면 이동
 		                WriteOneObject(data);
@@ -383,17 +430,38 @@ public class GameServer extends JFrame {
 		            		Room roomData = (Room)RoomVec.get(i);
 		            		if(roomData.id == roomID) //id같으면
 		            		{
-		            			roomData.addUser(); //방에 사용자 입장
-		            			roomData.userVec.add(data.user);
-		            			System.out.println(roomData.currentUserCount);
+		            			//방에 사용자 입장
+		            			roomData.addUser(); //인원 수 갱신
+//		            			roomData.userVec.add(user); //사용자 목록 갱신
+		            		
+		            			//사용자 객체의 방 속성 갱신
+		            			user.room = newRoom(roomData); //이래야 클라로 가는 user의 room이 제대로 잘 들어간다.
+		            			
+		            			room = user.room; //현재 방
+		            			
+		            			//게임내 플레이어 위치 설정
+		            			user.loca = roomData.currentUserCount;
+//		            			System.out.println(roomData.currentUserCount + "\n");
+//		            			System.out.println(user + " " + user.loca + "\n");
+//		            			System.out.println(data.user);
+		            			
+		            			//게임내 플레이어 위치 설정
+		            			
 		            			//사용자 클라에 방 입장 송신
-		            			Data rdata = new Data(data.user, "601", "enterRoom");
-		            			rdata.room = roomData;
-		            			rdata.room.id = roomID;
+		            			Data rdata = new Data(newUser(user), "601", "enterRoom");
+		            			rdata.room = newRoom(roomData);
 		            			WriteOneObject(rdata);
+		            			
+		            			//모든 사용자에게 방 인원이 추가됐음을 알리는 데이터 송신 "601"
+		            			System.out.println("aa: " + data.code);
+		            			data.room = newRoom(roomData);
+		            			WriteAllObject(data);
+		            			break;
 		            			//data.user.room = room;
 		            		}
 		            	}
+		            } else if(data.code.matches("1000")) { //현재 user 출력
+		            	System.out.println(user);
 		            }
 		            else if (data.code.matches("602")) { //방 퇴장
 		                Room room = data.room;

@@ -18,7 +18,6 @@ public class CreateRoomFrame extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField textField;
-	private static long id = 1;
 	private Room room;
 	private Data data;
 	private String title;
@@ -121,8 +120,9 @@ public class CreateRoomFrame extends JFrame {
 	}
 	
 	public void createData(String mode) {
-		room = new Room(id, title, mode, lp.user);
-		room.userVec.add(lp.user);
+		room = new Room(title, mode, lp.user); //방 번호는 서버에서 부여받는다.
+		lp.user.room = room; //사용자 객체의 방 속성 변경
+//		room.userVec.add(lp.user); //방 객체의 사용자 목록 속성 변경
 		data = new Data(lp.user, "600", "createRoom");
 		data.room = room;
 	}

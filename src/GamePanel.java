@@ -44,11 +44,16 @@ public class GamePanel extends JPanel{
 	private JPanel colorBar;
 	private JPanel userPanel;
 	private JTextField textField;
-	private JTextField username;
+	private JTextField username1;
 	private JTextField username2;
 	private JTextField username3;
 	private JTextField username4;
 	private JTextField showWord;
+	
+	private JLabel score1Label_score;
+	private JLabel score2Label_score;
+	private JLabel score3Label_score;
+	private JLabel score4Label_score;
 	
 	//버튼
 	public JButton btnBlack, btnRed, btnBlue, btnGreen, btnYellow, btnEraser, btnClear, btnStart, btnClose;	
@@ -81,13 +86,16 @@ public class GamePanel extends JPanel{
 	//Draw용 속성 끝======================================
 	
 	private LobbyPanel lp;
-	private User user;
+	private User user; //현재 사용자
+	private Room room; //현재 방
 	// Mouse Event 수신 처리
 	boolean flag = false;
 	
 	public GamePanel(LobbyPanel lp, User user) {
 		this.lp = lp;
 		this.user = user;
+		this.room = user.room;
+		System.out.print(user.room + " dndndndndn\n");
 		setLayout(null);
 		setBounds(0, 0, 863, 572);
 		
@@ -160,64 +168,64 @@ public class GamePanel extends JPanel{
 		JLabel user1Label = new JLabel(userImg);
 		user1Label.setBounds(106, 112, 68, 110);
 		add(user1Label);
-		username = new JTextField();
-		username.setFont(new Font("맑은 고딕", Font.BOLD, 11));
-		username.setText("user1");
-		username.setBounds(37, 129, 68, 22);
-		username.setEnabled(false);
-		username.setColumns(10);
-		add(username);
+		username1 = new JTextField();
+		username1.setFont(new Font("맑은 고딕", Font.BOLD, 11));
+		username1.setText("user1");
+		username1.setBounds(37, 129, 68, 22);
+		username1.setEnabled(false);
+		username1.setColumns(10);
+		add(username1);
 		
 		JLabel score1Label = new JLabel("SCORE");
 		score1Label.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		score1Label.setBounds(42,186,65,17);
 		add(score1Label);
-		JLabel score1Label_score = new JLabel("50");
+		score1Label_score = new JLabel("50");
 		score1Label_score.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		score1Label_score.setBounds(40, 160, 65, 17);
 		add(score1Label_score);
 		
 		//user2
-		JLabel user2Label = new JLabel(userImg);
-		user2Label.setBounds(105, 214, 68, 110);
-		add(user2Label);
-		
-		username = new JTextField();
-		username.setText("user2");
-		username.setFont(new Font("맑은 고딕", Font.BOLD, 11));
-		username.setBounds(36, 231, 68, 22);
-		username.setEnabled(false);
-		username.setColumns(10);
-		JLabel score2Label = new JLabel("SCORE");
-		score2Label.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
-		score2Label.setBounds(42,288,65,17);
-		JLabel score2Label_score = new JLabel("70");
-		score2Label_score.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
-		score2Label_score.setBounds(40, 260, 65, 17);
-		add(username);	
-		add(score2Label);
-		add(score2Label_score);
-		
-		//user3
 		JLabel user3Label = new JLabel(userImg);
-		user3Label.setBounds(746, 108, 68, 110);
+		user3Label.setBounds(105, 214, 68, 110);
 		add(user3Label);
 		
 		username3 = new JTextField();
 		username3.setText("user3");
-		username3.setFont(new Font("맑은 고딕", Font.BOLD, 12));
-		username3.setBounds(676, 125, 68, 22);
+		username3.setFont(new Font("맑은 고딕", Font.BOLD, 11));
+		username3.setBounds(36, 231, 68, 22);
 		username3.setEnabled(false);
 		username3.setColumns(10);
 		JLabel score3Label = new JLabel("SCORE");
 		score3Label.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
-		score3Label.setBounds(679, 180, 65, 17);	
-		JLabel score3Label_score = new JLabel("50");
+		score3Label.setBounds(42,288,65,17);
+		score3Label_score = new JLabel("70");
 		score3Label_score.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
-		score3Label_score.setBounds(679, 155, 65, 17);
-		add(username3);
+		score3Label_score.setBounds(40, 260, 65, 17);
+		add(username3);	
 		add(score3Label);
 		add(score3Label_score);
+		
+		//user3
+		JLabel user2Label = new JLabel(userImg);
+		user2Label.setBounds(746, 108, 68, 110);
+		add(user2Label);
+		
+		username2 = new JTextField();
+		username2.setText("user2");
+		username2.setFont(new Font("맑은 고딕", Font.BOLD, 12));
+		username2.setBounds(676, 125, 68, 22);
+		username2.setEnabled(false);
+		username2.setColumns(10);
+		JLabel score2Label = new JLabel("SCORE");
+		score2Label.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
+		score2Label.setBounds(679, 180, 65, 17);	
+		score2Label_score = new JLabel("50");
+		score2Label_score.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
+		score2Label_score.setBounds(679, 155, 65, 17);
+		add(username2);
+		add(score2Label);
+		add(score2Label_score);
 		
 		//user4
 		JLabel user4Label = new JLabel(userImg2);
@@ -233,7 +241,7 @@ public class GamePanel extends JPanel{
 		JLabel score4Label = new JLabel("SCORE");
 		score4Label.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		score4Label.setBounds(679, 282, 65, 17);	
-		JLabel score4Label_score = new JLabel("50");
+		score4Label_score = new JLabel("50");
 		score4Label_score.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		score4Label_score.setBounds(679, 255, 65, 17);
 		add(username4);
@@ -406,6 +414,24 @@ public class GamePanel extends JPanel{
 		MyMouseEvent mouse = new MyMouseEvent();
 		drawPanel.addMouseMotionListener(mouse);
 		drawPanel.addMouseListener(mouse);
+		
+		//방에 있는 사용자 출력
+//		for(int i=0;i<room.currentUserCount;i++) {
+//			User dataUser = room.userVec.get(i);
+//			if(i==0) {
+//				username1.setText(dataUser.name);
+//				score1Label_score.setText("0");
+//			} else if(i==1) {
+//				username2.setText(dataUser.name);
+//				score2Label_score.setText("0");
+//			} else if(i==2) {
+//				username3.setText(dataUser.name);
+//				score3Label_score.setText("0");
+//			} else if(i==3) {
+//				username4.setText(dataUser.name);
+//				score4Label_score.setText("0");
+//			}
+//		}
 	}
 	
 	class MyMouseWheelEvent implements MouseWheelListener {
@@ -460,7 +486,7 @@ public class GamePanel extends JPanel{
 //    		cm.pen_size = pen_size;
 //    		SendObject(cm);
 			
-			Data data = new Data(user, "502", "MOUSE");
+			Data data = new Data(user, "502", "Clicked");
 			data.mouse_e = e;
     		SendObject(data);
 //    		System.out.println(cm.code + " dsd\n");
@@ -483,7 +509,7 @@ public class GamePanel extends JPanel{
 			startX = e.getX(); //마우스가 눌렸을때 그때의 X좌표값으로 초기화
             startY = e.getY(); //마우스가 눌렸을때 그때의 Y좌표값으로 초기화
             
-            Data data = new Data(user, "501", "MOUSE");
+            Data data = new Data(user, "501", "Pressed");
             data.mouse_e = e;
     		SendObject(data);
 		}
@@ -492,7 +518,7 @@ public class GamePanel extends JPanel{
 		public void mouseReleased(MouseEvent e) {
 			// 드래그중 멈출시 보임
 			gc.drawImage(panelImage, 0, 0, drawPanel);
-			Data data = new Data(user, "502", "MOUSE");
+			Data data = new Data(user, "502", "Released");
 			data.mouse_e = e;
     		SendObject(data);
 //    		System.out.println(cm.code + " dsd\n");
@@ -509,12 +535,18 @@ public class GamePanel extends JPanel{
 			if((startX == 0 && startY == 0) || flag) {//처음 그릴 때
 				startX = data.mouse_e.getX(); 	
 				startY = data.mouse_e.getY();
-				flag = false;
-				g2d.drawLine(startX, startY, data.mouse_e.getX(), data.mouse_e.getY());   
+				
+				//Clicked이라면 다시 처음 그리는 것 처럼 그려야하므로 flag를 바꾸지 않는다.
+				if(!data.msg.equals("Clicked"))	flag = false; 
+				
+				endX = data.mouse_e.getX(); 
+	            endY = data.mouse_e.getY(); 
+				g2d.drawLine(startX, startY, endX, endY);   
 				gc.drawImage(panelImage, 0, 0, drawPanel);
 				return;
 			}
-			if(data.code.equals("502")) { //드래그하다 놓은 경우
+			
+			if(data.code.equals("502")) { //Released 또는 Clicked
 				System.out.println("Sda\n");
 				flag = true;
 			}
@@ -560,7 +592,7 @@ public class GamePanel extends JPanel{
 		}
 		// Mouse Event 송신 처리
 		public void SendMouseEvent(MouseEvent e) {
-			Data data = new Data(user, "500", "MOUSE");
+			Data data = new Data(user, "500", "Dragged");
 			data.mouse_e = e;
 			lp.SendObject(data);
 		}
