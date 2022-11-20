@@ -403,7 +403,7 @@ public class LobbyPanel extends JPanel {
 					//Server -> Client
 					switch (data.code) {
 						case "200": // chat message
-							if(data.msg.equals("퇴장")) { //사용자 리스트 갱신을 위해 사용자 리스트 초기화
+							if(data.msg.equals("퇴장")) { //다른 사용자가 퇴장한 경우 사용자 리스트 갱신을 위해 사용자 리스트 초기화
 								DefaultTableModel model=(DefaultTableModel)onlineUserTable.getModel();
 								model.setRowCount(0); //사용자 리스트(JTable) 초기화
 
@@ -422,7 +422,7 @@ public class LobbyPanel extends JPanel {
 						case "501":
 						case "502":
 						case "503":
-							gf.DoMouseEvent(data);
+							gf.DoEvent(data);
 							break;
 						case "600": //방 생성
 							if(data.user.name.equals(UserName)) { //내가 생성한 경우(게임화면으로 이동)
@@ -465,8 +465,10 @@ public class LobbyPanel extends JPanel {
 								}
 							}
 							break;
-						case "603":
-							
+						case "700": //게임 방에 모든 플레이어 화면 갱신
+							gf.DoEvent(data);
+							System.out.println("Lp(player 갱신): " + data.user.name+ " " + data.user.loca +"\n");
+							break;
 						case "800": //사용자리스트에 새로운 사용자 추가
 							User dataUser = data.user;
 							model = (DefaultTableModel)onlineUserTable.getModel();

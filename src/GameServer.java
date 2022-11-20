@@ -466,8 +466,28 @@ public class GameServer extends JFrame {
 		            else if (data.code.matches("602")) { //방 퇴장
 		                Room room = data.room;
 		                room.deleteUser(); //방에 사용자 퇴장
-		            } else if (data.code.matches("700")) { //해당 판의 남은 시간
-		                  
+		            } else if (data.code.matches("700")) { //게임 방에 모든 플레이어 화면 갱신
+		            	//같은 방에 있는 사용자의 UserService
+		            	Vector<UserService> sameRoomUs = new Vector<UserService>();
+		            	//같은 방에 있는 사용자 찾아 sameRoomUs에 저장
+		            	for(int i=0; i < user_vc.size(); i++) { 
+		            		UserService usData = (UserService)user_vc.get(i);
+		            		if(usData.room!=null) { //방이 있는 UserService만 판단
+			            		if(usData.room.id == room.id) {
+			            			sameRoomUs.add(usData);
+			            		}
+		            		}
+		            	}
+		            	//같은 방에 있는 사용자마다 자신의 정보를 송신
+		            	for (int i=0;i<sameRoomUs.size();i++) {
+		            		UserService myUsData = (UserService)sameRoomUs.get(i);
+		            		for (int j=0;j<sameRoomUs.size();j++) {
+		            			UserService sendUs = (UserService)sameRoomUs.get(j);
+			            		Data sendData = new Data(newUser(myUsData.user), "700", "plz"); //새로 Data 만들어야 잘 넘어감!
+			            		System.out.println(sendData.user.name+ " " + sendData.user.loca +"\n");
+			            		sendUs.WriteOneObject(sendData);
+			            	}
+		            	}
 		            } else if (data.code.matches("701")) { //게임 종료 알림
 		                  
 		            } else if (data.code.matches("801")) { //사용자 리스트 갱신(아예 새로 받기)

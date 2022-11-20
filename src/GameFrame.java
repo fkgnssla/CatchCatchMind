@@ -23,12 +23,12 @@ public class GameFrame extends JFrame{
 		gp.init(); //그래픽 요소 초기화
 	}
 	
-	public void DoMouseEvent(Data data) {
-		if(data.code.equals("503")) {
-			gp.DoGameEvent(data);
+	public void DoEvent(Data data) {
+		if(data.code.matches("500") || data.code.matches("501") || data.code.matches("502")) {
+			gp.DoMouseEvent(data);
 			return;
 		}
-		gp.DoMouseEvent(data);
+		gp.DoGameEvent(data);
 	}
 //	public static void main(String[] args) {
 //		EventQueue.invokeLater(new Runnable() {

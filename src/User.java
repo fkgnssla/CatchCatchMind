@@ -11,6 +11,7 @@ public class User implements Serializable {
 	boolean ready=false; //준비완료 
 	Room room; //속한 방
 	int loca=1; //플레이어 위치 (1,2,3,4)
+	int score=0;
 
 	public User(String name) {
 		this.name = name;

@@ -40,7 +40,7 @@ public class StartFrame extends JFrame {
 		setLocationRelativeTo(null);//창이 가운데 나오게
 		getContentPane().setLayout(null);
 		
-		contentPane = new IntroPanel();
+		contentPane = new IntroPanel(this);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);

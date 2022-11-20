@@ -25,8 +25,10 @@ public class IntroPanel extends JPanel {
 	private final JTextField txtUserName = new JTextField();
 	private String txtIpAddress = "127.0.0.1";
 	private String txtPortNumber = "30000";
+	private StartFrame sf;
 	
-	public IntroPanel() {
+	public IntroPanel(StartFrame sf) {
+		this.sf = sf;
 		setBounds(0, 0, 863, 572);
 		setLayout(null);
 		
@@ -57,6 +59,7 @@ public class IntroPanel extends JPanel {
 				String ip_addr = txtIpAddress;
 				String port_no = txtPortNumber;
 				new LobbyFrame(username, ip_addr, port_no);	//게임을 다시 시작하기위한 구성이 들어있는 함수
+				sf.dispose(); //시작화면 닫기
 			}
 			public void mouseEntered(MouseEvent e) {
 				gameStart.setFont(new Font("맑은 고딕",Font.BOLD,33));

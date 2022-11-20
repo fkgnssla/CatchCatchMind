@@ -415,23 +415,9 @@ public class GamePanel extends JPanel{
 		drawPanel.addMouseMotionListener(mouse);
 		drawPanel.addMouseListener(mouse);
 		
-		//방에 있는 사용자 출력
-//		for(int i=0;i<room.currentUserCount;i++) {
-//			User dataUser = room.userVec.get(i);
-//			if(i==0) {
-//				username1.setText(dataUser.name);
-//				score1Label_score.setText("0");
-//			} else if(i==1) {
-//				username2.setText(dataUser.name);
-//				score2Label_score.setText("0");
-//			} else if(i==2) {
-//				username3.setText(dataUser.name);
-//				score3Label_score.setText("0");
-//			} else if(i==3) {
-//				username4.setText(dataUser.name);
-//				score4Label_score.setText("0");
-//			}
-//		}
+		//게임 방에 모든 플레이어 화면 갱신을 요청하는 데이터 송신
+		Data data = new Data(user, "700", "playerInforUpdate");
+		SendObject(data);
 	}
 	
 	class MyMouseWheelEvent implements MouseWheelListener {
@@ -587,6 +573,22 @@ public class GamePanel extends JPanel{
 					g2d.setColor(Color.WHITE); //그리는 색상 => panel의 배경색
 					g2d.fillRect(0,0, drawPanel.getWidth(),  drawPanel.getHeight());
 					gc.drawImage(panelImage, 0, 0, drawPanel);
+				}
+			} else if (data.code.equals("700")) { //플레이어 화면 갱신
+				int i = data.user.loca;
+				System.out.println("Gp 593L: " + i + "\n");
+				if(i==1) {
+					username1.setText(data.user.name);
+					score1Label_score.setText(""+data.user.score);
+				} else if(i==2) {
+					username2.setText(data.user.name);
+					score2Label_score.setText(""+data.user.score);
+				} else if(i==3) {
+					username3.setText(data.user.name);
+					score3Label_score.setText(""+data.user.score);
+				} else if(i==4) {
+					username4.setText(data.user.name);
+					score4Label_score.setText(""+data.user.score);
 				}
 			}
 		}
