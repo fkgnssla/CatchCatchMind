@@ -418,6 +418,9 @@ public class LobbyPanel extends JPanel {
 							else
 								AppendText(msg);
 							break;
+						case "250":
+							gf.gameChat(data);
+							System.out.println("LobbyPanelllll");
 						case "500":
 						case "501":
 						case "502":

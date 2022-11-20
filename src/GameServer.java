@@ -373,15 +373,29 @@ public class GameServer extends JFrame {
 						user = data.user;
 						System.out.println(user + " " + data.user + "\n");
 						Login();
-					} else if (data.code.matches("200")) { //채팅
+					}else if (data.code.matches("200")) { //채팅
 						msg = String.format("[%s] %s", data.user.name, data.msg);
 						AppendText(msg); // server 화면에 출력
 						//args[0]: 사용자 이름, args[1]: 메세지
 						String[] args = msg.split(" "); // 단어들을 분리한다.
 						WriteAllObject(data);
-					} else if (data.code.matches("201")) { //정답알림
+						//
+					}else if (data.code.matches("201")) { //정답알림
 		                  
-		            } else if (data.code.matches("300")) { //게임 준비
+		            }else if (data.code.matches("250")) { //게임방 채팅
+		            	msg = String.format("[%s] %s", data.user.name, data.msg);
+		            	AppendText(msg);
+		            	String[] args = msg.split(" ");
+		            	for(int i=0; i < user_vc.size(); i++) { 
+		            		UserService usData = (UserService)user_vc.get(i);
+		            		if(usData.room!=null) {
+		            			if(usData.room.id == room.id) {
+		            				System.out.println(msg);
+		            				usData.WriteOneObject(new Data(user, "250", msg));
+		            			}
+		            		}
+		            	}
+		            }else if (data.code.matches("300")) { //게임 준비
 		                  
 		            } else if (data.code.matches("301")) { //게임 시작
 		                  

@@ -30,6 +30,12 @@ public class GameFrame extends JFrame{
 		}
 		gp.DoGameEvent(data);
 	}
+	
+	public void gameChat(Data data) {
+		if(data.code.matches("250")) {
+			gp.GameChat(data);
+		}
+	}
 //	public static void main(String[] args) {
 //		EventQueue.invokeLater(new Runnable() {
 //			public void run() {

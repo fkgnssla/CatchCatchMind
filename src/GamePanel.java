@@ -18,7 +18,13 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -28,7 +34,6 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.ImageObserver;
 import java.io.File;
-import java.io.IOException;
 import java.awt.event.ActionEvent;
 
 public class GamePanel extends JPanel{
@@ -49,6 +54,8 @@ public class GamePanel extends JPanel{
 	private JTextField username3;
 	private JTextField username4;
 	private JTextField showWord;
+	private JTextPane textArea;
+	private JButton btnInput;
 	
 	private JLabel score1Label_score;
 	private JLabel score2Label_score;
@@ -67,6 +74,7 @@ public class GamePanel extends JPanel{
 	private ImageIcon allclear = new ImageIcon("src/image/clearButton.png");
 	private ImageIcon startImg = new ImageIcon("src/image/startbtn.png");
 	private ImageIcon closeImg = new ImageIcon("src/image/exit.png");
+
 	
 	//음향
 	private Clip clip1; //배경음악
@@ -144,23 +152,30 @@ public class GamePanel extends JPanel{
 		//------제시어 끝
 		
 		//------게임 채팅 시작
+		
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds( 670, 320 ,160, 160);
 		add(scrollPane);
 		
-		JTextArea gameTextArea = new JTextArea();
-		scrollPane.setViewportView(gameTextArea);
-		
+		textArea = new JTextPane(); 
+		scrollPane.setViewportView(textArea);
+
 		JLabel chatLabel = new JLabel("대화창");
 		scrollPane.setColumnHeaderView(chatLabel);
 		
 		textField = new JTextField();
-		textField.setBounds(670,480,130,30);
+		textField.setBounds(670,480,112,30);
 		add(textField);
 		textField.setColumns(10);
-		JButton btnInput = new JButton("입력");
-		btnInput.setBounds(800, 480, 30, 30);
+		btnInput = new JButton("입력");
+		btnInput.setFont(new Font("굴림", Font.PLAIN, 8));
+		btnInput.setBounds(780, 480, 50, 30);
 		add(btnInput);
+
+		TextSendAction action = new TextSendAction();
+		btnInput.addActionListener(action);
+		textField.addActionListener(action);
+		textField.requestFocus();
 		//------게임 채팅 끝
 		
 		//------사용자
@@ -592,14 +607,56 @@ public class GamePanel extends JPanel{
 				}
 			}
 		}
+		
 		// Mouse Event 송신 처리
 		public void SendMouseEvent(MouseEvent e) {
 			Data data = new Data(user, "500", "Dragged");
 			data.mouse_e = e;
 			lp.SendObject(data);
 		}
+
+		//chatting
+		public void GameChat(Data data) {
+			if(data.code.equals("250")) { 
+				System.out.println("pleeeeaaasssseeee");
+				String msg = String.format("[%s]\n%s", data.user.name, data.msg);
+				AppendText(msg);
+			}
+		}
+		
+		class TextSendAction implements ActionListener {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (e.getSource() == btnInput || e.getSource() == textField) {
+					String msg = null;
+					msg = textField.getText();
+					//SendMessage(msg);
+					Data data = new Data(user, "250", msg);
+					SendObject(data);
+					textField.setText(""); 
+					textField.requestFocus();
+				}
+			}
+		}
 		
 		public void SendObject(Object ob) { // 서버로 메세지를 보내는 메소드
 			lp.SendObject(ob);
+		}
+		//채팅 화면에 출력
+		public void AppendText(String msg) {
+			msg = msg.trim();
+			StyledDocument doc = textArea.getStyledDocument();
+			SimpleAttributeSet left = new SimpleAttributeSet();
+			StyleConstants.setAlignment(left, StyleConstants.ALIGN_LEFT);
+			StyleConstants.setForeground(left, Color.BLACK);
+		    doc.setParagraphAttributes(doc.getLength(), 1, left, false);
+		    try {
+				doc.insertString(doc.getLength(), msg+"\n", left );
+			} catch (BadLocationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		    int len = textArea.getDocument().getLength();
+			textArea.setCaretPosition(len);	
 		}
 }
