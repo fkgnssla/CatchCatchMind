@@ -619,8 +619,7 @@ public class GamePanel extends JPanel{
 		public void GameChat(Data data) {
 			if(data.code.equals("250")) { 
 				System.out.println("pleeeeaaasssseeee");
-				String msg = String.format("[%s]\n%s", data.user.name, data.msg);
-				AppendText(msg);
+				AppendText(data.msg);
 			}
 		}
 		
