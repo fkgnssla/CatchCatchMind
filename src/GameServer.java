@@ -395,8 +395,27 @@ public class GameServer extends JFrame {
 		            			}
 		            		}
 		            	}
-		            }else if (data.code.matches("300")) { //게임 준비
-		                  
+		            } else if (data.code.matches("300")) { //게임 시작 (방 상태 "게임중"으로 바꿔야함)
+		            	//Server의 해당 Room 객체 상태 변경
+		            	for(int i=0; i < RoomVec.size(); i++) { 
+		            		Room roomData = (Room)RoomVec.get(i);
+		            		if(roomData.id == room.id) { //id같으면
+		            			roomData.status = "게임중";
+		            		}
+		            	}
+		            	
+		            	//모든 사용자의 room.id번 방 상태 "게임중"으로 변경 
+		            	Data sendData = new Data(user, "300", room.id + "");
+		            	WriteAllObject(sendData);
+		            	
+		            	//해당 방의 loca가 1인 User에게 출제하라고 송신
+		            	for(int i=0; i < user_vc.size(); i++) { 
+		            		UserService us = (UserService)user_vc.get(i);
+		            		if((us.room.id == room.id) && us.user.loca==1) { //id같으면
+		            			sendData = new Data(user, "703", "출제하시오.");
+				            	us.WriteOneObject(sendData);
+		            		}
+		            	}
 		            } else if (data.code.matches("301")) { //게임 시작
 		                  
 		            } else if (data.code.matches("400")) { //키워드 받기
@@ -449,8 +468,10 @@ public class GameServer extends JFrame {
 		            		
 		            			//사용자 객체의 방 속성 갱신
 		            			user.room = newRoom(roomData); //이래야 클라로 가는 user의 room이 제대로 잘 들어간다.
+//		            			user.room = roomData;
 		            			
-		            			room = user.room; //현재 방
+//		            			room = user.room; //현재 방
+		            			room = roomData; //바꾼거
 		            			
 		            			//게임내 플레이어 위치 설정
 		            			user.loca = roomData.currentUserCount;

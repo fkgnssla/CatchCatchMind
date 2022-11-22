@@ -27,6 +27,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -312,6 +313,14 @@ public class GamePanel extends JPanel{
 		btnStart.setBorderPainted(false); btnStart.setContentAreaFilled(false);btnStart.setFocusPainted(false);
 		btnStart.setBounds(660, 14, 60, 60);
 		btnStart.setVisible(false); //처음엔 게임시작 버튼 안 보이게
+		btnStart.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				System.out.println("현재 게임방 번호 : " + room.id);
+				Data data = new Data(user, "300", "GameStart!");
+				data.room = room;
+				lp.SendObject(data);
+			}
+		});
 		add(btnStart);
 		
 		//------게임 나가기 버튼
@@ -427,9 +436,9 @@ public class GamePanel extends JPanel{
 		g2d.fillRect(0,0, drawPanel.getWidth(),  drawPanel.getHeight()); //panel 크기만큼 사각형으로 채우기 => background-color 넣는 느낌
 		g2d.setColor(Color.BLACK); //그리는 색상 => 검정
 		
-		MyMouseEvent mouse = new MyMouseEvent();
-		drawPanel.addMouseMotionListener(mouse);
-		drawPanel.addMouseListener(mouse);
+//		MyMouseEvent mouse = new MyMouseEvent();
+//		drawPanel.addMouseMotionListener(mouse);
+//		drawPanel.addMouseListener(mouse);
 		
 		//게임 방에 모든 플레이어 화면 갱신을 요청하는 데이터 송신
 		Data data = new Data(user, "700", "playerInforUpdate");
@@ -609,6 +618,11 @@ public class GamePanel extends JPanel{
 			} else if (data.code.equals("603")) { //방이 꽉 찼다면 게임방 내 게임시작 버튼 활성화 (해당 방의 모든 사용자가 받는다.)
 				System.out.println("게임시작 버튼 활성화!");
 				btnStart.setVisible(true);
+			} else if(data.code.equals("703")) {
+				MyMouseEvent mouse = new MyMouseEvent();
+				drawPanel.addMouseMotionListener(mouse);
+				drawPanel.addMouseListener(mouse);
+				System.out.println(user.name + "인 내가 출제자다!");
 			}
 		}
 		

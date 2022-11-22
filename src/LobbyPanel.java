@@ -421,6 +421,18 @@ public class LobbyPanel extends JPanel {
 						case "250":
 							gf.gameChat(data);
 							System.out.println("LobbyPanelllll");
+							break;
+						case "300":
+							System.out.println("게임 시작한 방 번호: " + data.msg);
+							//방 목록 갱신
+							for (int i = 0; i < roomTable.getRowCount(); i++) {
+								//해당 방을 찾아서 상태 "게임중"으로 갱신
+								if(roomTable.getModel().getValueAt(i,0).equals(data.msg)) {
+									roomTable.setValueAt("게임중", i, 5);
+									break;
+								}
+							}
+							break;
 						case "500":
 						case "501":
 						case "502":
@@ -473,6 +485,9 @@ public class LobbyPanel extends JPanel {
 						case "700": //게임 방에 모든 플레이어 화면 갱신
 							gf.DoEvent(data);
 							System.out.println("Lp(player 갱신): " + data.user.name+ " " + data.user.loca +"\n");
+							break;
+						case "703":
+							gf.DoEvent(data);
 							break;
 						case "800": //사용자리스트에 새로운 사용자 추가
 							User dataUser = data.user;
