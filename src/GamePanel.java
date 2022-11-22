@@ -311,6 +311,7 @@ public class GamePanel extends JPanel{
 		btnStart = new JButton(startImg);
 		btnStart.setBorderPainted(false); btnStart.setContentAreaFilled(false);btnStart.setFocusPainted(false);
 		btnStart.setBounds(660, 14, 60, 60);
+		btnStart.setVisible(false); //처음엔 게임시작 버튼 안 보이게
 		add(btnStart);
 		
 		//------게임 나가기 버튼
@@ -605,6 +606,9 @@ public class GamePanel extends JPanel{
 					username4.setText(data.user.name);
 					score4Label_score.setText(""+data.user.score);
 				}
+			} else if (data.code.equals("603")) { //방이 꽉 찼다면 게임방 내 게임시작 버튼 활성화 (해당 방의 모든 사용자가 받는다.)
+				System.out.println("게임시작 버튼 활성화!");
+				btnStart.setVisible(true);
 			}
 		}
 		

@@ -468,6 +468,8 @@ public class LobbyPanel extends JPanel {
 								}
 							}
 							break;
+						case "603": //방이 꽉 찼다면 게임방 내 게임시작 버튼 활성화
+							gf.DoEvent(data);
 						case "700": //게임 방에 모든 플레이어 화면 갱신
 							gf.DoEvent(data);
 							System.out.println("Lp(player 갱신): " + data.user.name+ " " + data.user.loca +"\n");

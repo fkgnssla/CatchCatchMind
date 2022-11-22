@@ -446,7 +446,6 @@ public class GameServer extends JFrame {
 		            		{
 		            			//방에 사용자 입장
 		            			roomData.addUser(); //인원 수 갱신
-//		            			roomData.userVec.add(user); //사용자 목록 갱신
 		            		
 		            			//사용자 객체의 방 속성 갱신
 		            			user.room = newRoom(roomData); //이래야 클라로 가는 user의 room이 제대로 잘 들어간다.
@@ -455,11 +454,6 @@ public class GameServer extends JFrame {
 		            			
 		            			//게임내 플레이어 위치 설정
 		            			user.loca = roomData.currentUserCount;
-//		            			System.out.println(roomData.currentUserCount + "\n");
-//		            			System.out.println(user + " " + user.loca + "\n");
-//		            			System.out.println(data.user);
-		            			
-		            			//게임내 플레이어 위치 설정
 		            			
 		            			//사용자 클라에 방 입장 송신
 		            			Data rdata = new Data(newUser(user), "601", "enterRoom");
@@ -470,6 +464,19 @@ public class GameServer extends JFrame {
 		            			System.out.println("aa: " + data.code);
 		            			data.room = newRoom(roomData);
 		            			WriteAllObject(data);
+		            			
+		            			//방이 꽉 찼다면 게임방 내 게임시작 버튼 활성화 (해당 방의 모든 사용자에게 송신)
+		            			if(roomData.currentUserCount == roomData.maxUserCount) {
+		            				rdata = new Data(user, "603", "startButtonActivate");
+		            				for(int j=0;j<user_vc.size();j++) {
+		            					UserService usData = (UserService)user_vc.get(j);
+		    		            		if(usData.room!=null) { //방이 있는 UserService만 판단
+		    			            		if(usData.room.id == roomData.id) {
+		    			            			usData.WriteOneObject(rdata);
+		    			            		}
+		    		            		}
+		            				}
+		            			}
 		            			break;
 		            			//data.user.room = room;
 		            		}
