@@ -94,6 +94,11 @@ public class GamePanel extends JPanel{
 	private Image panelImage = null; 
 	//Draw용 속성 끝======================================
 	
+	//제시어
+	private String word;
+	private String initw; //초성
+	private String firstw; //첫글자
+	
 	private LobbyPanel lp;
 	private User user; //현재 사용자
 	private Room room; //현재 방
@@ -145,7 +150,7 @@ public class GamePanel extends JPanel{
 		
 		showWord = new JTextField();
 		showWord.setFont(new Font("맑은 고딕", Font.BOLD, 12));
-		showWord.setText("딸기맛 사탕");
+		//showWord.setText("딸기맛 사탕");
 		showWord.setBounds(530, 81, 100, 25);
 		showWord.setEnabled(false);
 		showWord.setColumns(10);
@@ -623,6 +628,22 @@ public class GamePanel extends JPanel{
 				drawPanel.addMouseMotionListener(mouse);
 				drawPanel.addMouseListener(mouse);
 				System.out.println(user.name + "인 내가 출제자다!");
+				
+				showWord.setText(word); //제시어 출제자 화면에만 출력
+			} 
+		}
+		
+		//제시어 송신 처리
+		public void wordEvent(Data data) {
+			if(data.code.equals("400")) { //제시어
+				System.out.println(data.msg + "> 제시어 받았숨");
+				word = data.msg;//제시어 받음
+			} else if (data.code.equals("401")) { //초성
+				System.out.println(data.msg + " 401 신호");
+				initw = data.msg;
+			} else if (data.code.equals("402")) { //첫글자
+				System.out.println(data.msg + " 402 신호");
+				firstw = data.msg;
 			}
 		}
 		
@@ -635,8 +656,7 @@ public class GamePanel extends JPanel{
 
 		//chatting
 		public void GameChat(Data data) {
-			if(data.code.equals("250")) { 
-				System.out.println("pleeeeaaasssseeee");
+			if(data.code.equals("250")) {
 				AppendText(data.msg);
 			}
 		}

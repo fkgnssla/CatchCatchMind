@@ -433,6 +433,11 @@ public class LobbyPanel extends JPanel {
 								}
 							}
 							break;
+						case "400":
+						case "401":
+						case "402":
+							gf.WordEvent(data);
+							break;
 						case "500":
 						case "501":
 						case "502":

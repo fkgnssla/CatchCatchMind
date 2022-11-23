@@ -31,6 +31,11 @@ public class GameFrame extends JFrame{
 		gp.DoGameEvent(data);
 	}
 	
+	public void WordEvent(Data data) {
+		//if(data.code.matches("400"))
+		gp.wordEvent(data);
+	}
+	
 	public void gameChat(Data data) {
 		if(data.code.matches("250")) {
 			gp.GameChat(data);

@@ -12,8 +12,10 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -22,6 +24,8 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Random;
 import java.util.Vector;
 import java.awt.event.ActionEvent;
 import javax.swing.SwingConstants;
@@ -131,7 +135,7 @@ public class GameServer extends JFrame {
 			}
 		}
 	}
-
+	
 	//textArea에 문자열 출력
 	public void AppendText(String str) {
 		// textArea.append("사용자로부터 들어온 메세지 : " + str+"\n");
@@ -162,6 +166,11 @@ public class GameServer extends JFrame {
 		private Vector user_vc;	
 		public String UserName = "";
 		public String UserStatus;
+		
+		public String word;
+		public String initword;
+		public String firstword;
+		
 
 		//user나 room을 Data 객체에 넣는 경우 값이 안 바뀌어 있을 수 있기에 확인용도로만 사용추천
 		public User user = null; 
@@ -219,6 +228,45 @@ public class GameServer extends JFrame {
 			
 			WriteAll(msg); // 나를 제외한 다른 User들에게 전송(보내기전 벡터에서 삭제했기에 가능)
 			AppendText("사용자 " + "[" + UserName + "] 퇴장. 현재 참가자 수 " + UserVec.size());
+		}
+		// +++++++++++++++++++++++++++++제시어
+		public void Word() {
+        	try {
+				BufferedReader br = new BufferedReader(new FileReader("wordlist.txt"));
+				ArrayList<String> words = new ArrayList<String>();
+				
+				while(br.readLine() != null) 
+					words.add(br.readLine());
+				Random random = new Random();
+				String w = words.get(random.nextInt(words.size()));
+				
+				String[] ws = w.split(" ");
+				word = ws[0]; //제시어
+				initword = ws[1]; //초성
+				//firstword = w.charAt(0); //첫글자
+				
+				Data wordData = new Data(user, "400", word); //제시어
+				Data initData = new Data(user, "401", initword); //초성
+				//Data firstData = new Data(user, "402", firstword); //첫글자
+
+//            	WriteAllObject(wordData);
+//            	WriteAllObject(initData);
+				
+				System.out.println("word()실행됩니다");
+            	
+            	for(int i=0; i < user_vc.size(); i++) { 
+            		UserService usData = (UserService)user_vc.get(i);
+            		if(usData.room!=null) {
+            			if(usData.room.id == room.id) {
+            				usData.WriteAllObject(wordData);
+            				usData.WriteAllObject(initData);
+            			}
+            		}
+            	}
+            	
+			} catch(IOException io) {
+				io.printStackTrace();
+			}
 		}
 
 		// 모든 User들에게 방송. 각각의 UserService Thread의 WriteOne() 을 호출한다.
@@ -408,18 +456,21 @@ public class GameServer extends JFrame {
 		            	Data sendData = new Data(user, "300", room.id + "");
 		            	WriteAllObject(sendData);
 		            	
+		            	//제시어 클라에게 전송
+		            	Word();
+		            	
 		            	//해당 방의 loca가 1인 User에게 출제하라고 송신
 		            	for(int i=0; i < user_vc.size(); i++) { 
 		            		UserService us = (UserService)user_vc.get(i);
 		            		if((us.room.id == room.id) && us.user.loca==1) { //id같으면
-		            			sendData = new Data(user, "703", "출제하시오.");
+		            			sendData = new Data(user, "703", word); //제시어 담아서 보냄
 				            	us.WriteOneObject(sendData);
 		            		}
 		            	}
 		            } else if (data.code.matches("301")) { //게임 시작
 		                  
 		            } else if (data.code.matches("400")) { //키워드 받기
-		                  
+		            	
 		            } else if (data.code.matches("500") || data.code.matches("501") || data.code.matches("502")) { //마우스 이벤트
 		            	System.out.println(user.name + " " + room.id + ": MOUSE\n");
 		            	
@@ -502,11 +553,12 @@ public class GameServer extends JFrame {
 		            			//data.user.room = room;
 		            		}
 		            	}
-		            } else if(data.code.matches("1000")) { //현재 user 출력
+		            }
+		            else if(data.code.matches("1000")) { //현재 user 출력
 		            	System.out.println(user);
 		            }
 		            else if (data.code.matches("602")) { //방 퇴장
-		                Room room = data.room;
+		                Room room = data.room ;
 		                room.deleteUser(); //방에 사용자 퇴장
 		            } else if (data.code.matches("700")) { //게임 방에 모든 플레이어 화면 갱신
 		            	//같은 방에 있는 사용자의 UserService
