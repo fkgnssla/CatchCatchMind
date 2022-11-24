@@ -16,7 +16,7 @@ public class GameFrame extends JFrame{
 		setBounds(100, 100, 863, 572);
 		setLocationRelativeTo(null);
 		
-		gp = new GamePanel(lp, user);
+		gp = new GamePanel(this, lp, user);
 		gp.setBorder(new EmptyBorder(5,5,5,5));
 		setContentPane(gp);
 		gp.setLayout(null);

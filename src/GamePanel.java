@@ -94,18 +94,19 @@ public class GamePanel extends JPanel{
 	private Image panelImage = null; 
 	//Draw용 속성 끝======================================
 	
-	//제시어
-	private String word;
+	private String word; //제시어
 	private String initw; //초성
 	private String firstw; //첫글자
 	
+	private GameFrame gf;
 	private LobbyPanel lp;
 	private User user; //현재 사용자
 	private Room room; //현재 방
 	// Mouse Event 수신 처리
 	boolean flag = false;
 	
-	public GamePanel(LobbyPanel lp, User user) {
+	public GamePanel(GameFrame gf, LobbyPanel lp, User user) {
+		this.gf = gf;
 		this.lp = lp;
 		this.user = user;
 		this.room = user.room;
@@ -191,7 +192,7 @@ public class GamePanel extends JPanel{
 		add(user1Label);
 		username1 = new JTextField();
 		username1.setFont(new Font("맑은 고딕", Font.BOLD, 11));
-		username1.setText("user1");
+		username1.setText("빈 자리");
 		username1.setBounds(37, 129, 68, 22);
 		username1.setEnabled(false);
 		username1.setColumns(10);
@@ -201,7 +202,7 @@ public class GamePanel extends JPanel{
 		score1Label.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		score1Label.setBounds(42,186,65,17);
 		add(score1Label);
-		score1Label_score = new JLabel("50");
+		score1Label_score = new JLabel("0");
 		score1Label_score.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		score1Label_score.setBounds(40, 160, 65, 17);
 		add(score1Label_score);
@@ -212,7 +213,7 @@ public class GamePanel extends JPanel{
 		add(user3Label);
 		
 		username3 = new JTextField();
-		username3.setText("user3");
+		username3.setText("빈 자리");
 		username3.setFont(new Font("맑은 고딕", Font.BOLD, 11));
 		username3.setBounds(36, 231, 68, 22);
 		username3.setEnabled(false);
@@ -220,7 +221,7 @@ public class GamePanel extends JPanel{
 		JLabel score3Label = new JLabel("SCORE");
 		score3Label.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		score3Label.setBounds(42,288,65,17);
-		score3Label_score = new JLabel("70");
+		score3Label_score = new JLabel("0");
 		score3Label_score.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		score3Label_score.setBounds(40, 260, 65, 17);
 		add(username3);	
@@ -233,7 +234,7 @@ public class GamePanel extends JPanel{
 		add(user2Label);
 		
 		username2 = new JTextField();
-		username2.setText("user2");
+		username2.setText("빈 자리");
 		username2.setFont(new Font("맑은 고딕", Font.BOLD, 12));
 		username2.setBounds(676, 125, 68, 22);
 		username2.setEnabled(false);
@@ -241,7 +242,7 @@ public class GamePanel extends JPanel{
 		JLabel score2Label = new JLabel("SCORE");
 		score2Label.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		score2Label.setBounds(679, 180, 65, 17);	
-		score2Label_score = new JLabel("50");
+		score2Label_score = new JLabel("0");
 		score2Label_score.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		score2Label_score.setBounds(679, 155, 65, 17);
 		add(username2);
@@ -254,7 +255,7 @@ public class GamePanel extends JPanel{
 		add(user4Label);
 		
 		username4 = new JTextField();
-		username4.setText("user4");
+		username4.setText("빈 자리");
 		username4.setFont(new Font("맑은 고딕", Font.BOLD, 12));
 		username4.setBounds(674, 228, 68, 22);
 		username4.setEnabled(false);
@@ -262,7 +263,7 @@ public class GamePanel extends JPanel{
 		JLabel score4Label = new JLabel("SCORE");
 		score4Label.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		score4Label.setBounds(679, 282, 65, 17);	
-		score4Label_score = new JLabel("50");
+		score4Label_score = new JLabel("0");
 		score4Label_score.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		score4Label_score.setBounds(679, 255, 65, 17);
 		add(username4);
@@ -332,6 +333,17 @@ public class GamePanel extends JPanel{
 		btnClose = new JButton(closeImg);
 		btnClose.setBorderPainted(false); btnClose.setContentAreaFilled(false);btnClose.setFocusPainted(false);
 		btnClose.setBounds(730, 13, 60, 60);
+		btnClose.addMouseListener(new MouseAdapter() { //방 퇴장
+			public void mousePressed(MouseEvent e) {
+				System.out.println("퇴장하는 게임방 번호 : " + room.id);
+				
+				Data data = new Data(user, "602", "gameRoomExit"); //방 퇴장
+				data.room = room;
+				lp.SendObject(data);
+				
+				gf.dispose();
+			}
+		});
 		add(btnClose);
 		
 		JButton btnHint = new JButton("HINT");
@@ -630,7 +642,22 @@ public class GamePanel extends JPanel{
 				System.out.println(user.name + "인 내가 출제자다!");
 				
 				showWord.setText(word); //제시어 출제자 화면에만 출력
-			} 
+			} else if(data.code.equals("602")) {
+				int i = Integer.parseInt(data.msg);
+				if(i==1) {
+					username1.setText("빈 자리");
+					score1Label_score.setText("0");
+				} else if(i==2) {
+					username2.setText("빈 자리");
+					score2Label_score.setText("0");
+				} else if(i==3) {
+					username3.setText("빈 자리");
+					score3Label_score.setText("0");
+				} else if(i==4) {
+					username4.setText("빈 자리");
+					score4Label_score.setText("0");
+				}
+			}
 		}
 		
 		//제시어 송신 처리

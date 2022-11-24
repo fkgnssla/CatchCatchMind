@@ -174,7 +174,7 @@ public class GameServer extends JFrame {
 
 		//user나 room을 Data 객체에 넣는 경우 값이 안 바뀌어 있을 수 있기에 확인용도로만 사용추천
 		public User user = null; 
-		public Room room = null; 
+		public Room room = null;
 		
 		public UserService(Socket client_socket) {
 			// TODO Auto-generated constructor stub
@@ -254,12 +254,13 @@ public class GameServer extends JFrame {
 				
 				System.out.println("word()실행됩니다");
             	
+				//같은 방에 있는 사용자에게 제시어, 초성, 첫 글자 송신
             	for(int i=0; i < user_vc.size(); i++) { 
             		UserService usData = (UserService)user_vc.get(i);
             		if(usData.room!=null) {
             			if(usData.room.id == room.id) {
-            				usData.WriteAllObject(wordData);
-            				usData.WriteAllObject(initData);
+            				usData.WriteOneObject(wordData);
+            				usData.WriteOneObject(initData);
             			}
             		}
             	}
@@ -558,8 +559,59 @@ public class GameServer extends JFrame {
 		            	System.out.println(user);
 		            }
 		            else if (data.code.matches("602")) { //방 퇴장
-		                Room room = data.room ;
-		                room.deleteUser(); //방에 사용자 퇴장
+		            	long id = room.id;
+		            	int loca = user.loca;
+		            	int maxLoca = room.currentUserCount;
+		            	System.out.println("Server: 퇴장하는 방 번호: " + id);
+		            	System.out.println("Server: 퇴장하는 사용자 위치: " + loca);
+		            	room.deleteUser(); //현재 사용자 수 감소
+		            	Room roomData = newRoom(room);
+		            	room = null;
+
+		            	//같은 방에 있는 사용자 찾아 loca 갱신
+		            	for(int i=0; i < user_vc.size(); i++) { 
+		            		UserService usData = (UserService)user_vc.get(i);
+		            		if(usData.room!=null) { //방이 있는 UserService만 판단
+			            		if(usData.room.id == id) {
+			            			if(usData.user.loca>loca) { //퇴장한 사용자의 loca보다 큰 값을 가지는 사용자 1칸씩 땡기기
+			            				usData.user.loca-=1;
+			            			}
+			            		}
+		            		}
+		            	}
+		            	//플레이어 화면 갱신!
+		            	//같은 방에 있는 사용자의 UserService
+		            	Vector<UserService> sameRoomUs = new Vector<UserService>();
+		            	//같은 방에 있는 사용자 찾아 sameRoomUs에 저장
+		            	for(int i=0; i < user_vc.size(); i++) { 
+		            		UserService usData = (UserService)user_vc.get(i);
+		            		if(usData.room!=null) { //방이 있는 UserService만 판단
+			            		if(usData.room.id == id) {
+			            			sameRoomUs.add(usData);
+			            		}
+		            		}
+		            	}
+		            	//같은 방에 있는 사용자마다 자신의 정보를 송신
+		            	Data sendData;
+		            	for (int i=0;i<sameRoomUs.size();i++) {
+		            		UserService myUsData = (UserService)sameRoomUs.get(i);
+		            		
+		            		//게임방에서 사용자가 퇴장한 경우, 맨 마지막에 있는 사용자의 플레이어 화면 초기화
+			            	sendData = new Data(user, "602", maxLoca+"");
+			            	myUsData.WriteOneObject(sendData);
+			            	
+		            		for (int j=0;j<sameRoomUs.size();j++) {
+		            			UserService sendUs = (UserService)sameRoomUs.get(j);
+			            		sendData = new Data(newUser(myUsData.user), "700", "plz"); //새로 Data 만들어야 잘 넘어감!
+			            		System.out.println(sendData.user.name+ " " + sendData.user.loca +"\n");
+			            		sendUs.WriteOneObject(sendData);
+			            	}
+		            	}
+		            	
+		            	//방 목록 갱신!
+		            	sendData = new Data(user, "602", "gameRoomExit");
+		            	sendData.room = roomData;
+		            	WriteAllObject(sendData);
 		            } else if (data.code.matches("700")) { //게임 방에 모든 플레이어 화면 갱신
 		            	//같은 방에 있는 사용자의 UserService
 		            	Vector<UserService> sameRoomUs = new Vector<UserService>();
