@@ -249,9 +249,6 @@ public class GameServer extends JFrame {
 				Data initData = new Data(user, "401", initword); //초성
 				//Data firstData = new Data(user, "402", firstword); //첫글자
 
-//            	WriteAllObject(wordData);
-//            	WriteAllObject(initData);
-				
 				System.out.println("word()실행됩니다");
             	
 				//같은 방에 있는 사용자에게 제시어, 초성, 첫 글자 송신
@@ -449,6 +446,7 @@ public class GameServer extends JFrame {
 		            	for(int i=0; i < RoomVec.size(); i++) { 
 		            		Room roomData = (Room)RoomVec.get(i);
 		            		if(roomData.id == room.id) { //id같으면
+		            			roomData.currentLoca = 1; //턴 설정
 		            			roomData.status = "게임중";
 		            		}
 		            	}
@@ -470,8 +468,38 @@ public class GameServer extends JFrame {
 		            	}
 		            } else if (data.code.matches("301")) { //게임 시작
 		                  
-		            } else if (data.code.matches("400")) { //키워드 받기
+		            } else if (data.code.matches("900")) { //제시어를 맞춘 경우
+		            	//정답자 점수 +10
+		            	user.score+=10;
 		            	
+		            	//출제자 점수 +7
+		            	for(int i=0; i < user_vc.size(); i++) { 
+		            		UserService us = (UserService)user_vc.get(i);
+		            		if((us.room.id == room.id) && us.user.loca==room.currentLoca) { //id같으면
+		            			us.user.score+=7;
+		            		}
+		            	}
+		            	
+		            	//화면 갱신, 턴 넘기는 데이터 생성(?)
+		            	Data data1 = new Data(user,"900", user.loca + " " + room.currentLoca); //정답자 + " " + 출제자
+		            	System.out.println("정답자: " + user.loca + ", 출제자: " + room.currentLoca);
+		            	//loca 변경(기존 출제자 => 마우스이벤트X, 다음 출제자 => 마우스이벤트O)
+		            	room.currentLoca = room.currentLoca+1;
+		            	
+		            	//나중에 여기서 게임종료 code 작성해야함(room.currentLoca==room.maxCount)
+		            	
+		            	//제시어, 초성, 첫 글자 송신
+		            	Word();
+		            	
+		            	//해당 방의 모든 사용자에게 송신(화면 갱신, 턴 넘기는 작업을 하는 데이터)
+		            	for(int i=0; i < user_vc.size(); i++) { 
+		            		UserService us = (UserService)user_vc.get(i);
+		            		if((us.room.id == room.id)) { 
+		            			us.WriteOneObject(data1);
+		            		}
+		            	}
+		            	
+		            	//word()해야함
 		            } else if (data.code.matches("500") || data.code.matches("501") || data.code.matches("502")) { //마우스 이벤트
 		            	System.out.println(user.name + " " + room.id + ": MOUSE\n");
 		            	

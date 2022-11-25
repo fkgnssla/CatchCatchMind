@@ -104,6 +104,7 @@ public class GamePanel extends JPanel{
 	private Room room; //현재 방
 	// Mouse Event 수신 처리
 	boolean flag = false;
+	MyMouseEvent mouse = new MyMouseEvent();
 	
 	public GamePanel(GameFrame gf, LobbyPanel lp, User user) {
 		this.gf = gf;
@@ -453,10 +454,6 @@ public class GamePanel extends JPanel{
 		g2d.fillRect(0,0, drawPanel.getWidth(),  drawPanel.getHeight()); //panel 크기만큼 사각형으로 채우기 => background-color 넣는 느낌
 		g2d.setColor(Color.BLACK); //그리는 색상 => 검정
 		
-//		MyMouseEvent mouse = new MyMouseEvent();
-//		drawPanel.addMouseMotionListener(mouse);
-//		drawPanel.addMouseListener(mouse);
-		
 		//게임 방에 모든 플레이어 화면 갱신을 요청하는 데이터 송신
 		Data data = new Data(user, "700", "playerInforUpdate");
 		SendObject(data);
@@ -635,8 +632,7 @@ public class GamePanel extends JPanel{
 			} else if (data.code.equals("603")) { //방이 꽉 찼다면 게임방 내 게임시작 버튼 활성화 (해당 방의 모든 사용자가 받는다.)
 				System.out.println("게임시작 버튼 활성화!");
 				btnStart.setVisible(true);
-			} else if(data.code.equals("703")) {
-				MyMouseEvent mouse = new MyMouseEvent();
+			} else if(data.code.equals("703")) { //내가 출제자인 경우
 				drawPanel.addMouseMotionListener(mouse);
 				drawPanel.addMouseListener(mouse);
 				System.out.println(user.name + "인 내가 출제자다!");
@@ -657,6 +653,59 @@ public class GamePanel extends JPanel{
 					username4.setText("빈 자리");
 					score4Label_score.setText("0");
 				}
+			} else if(data.code.equals("900")) { //제시어 맞춘 경우 => 플레이어 화면갱신, 턴 바꾸기 / msg = 정답자 + " " + 출제자
+				//정답자 (플레이어 화면 갱신) 시작
+				int ansLoca = Integer.parseInt(data.msg.split(" ")[0]); //정답자 Loca
+				//점수 갱신
+				if(ansLoca==1) {
+					score1Label_score.setText(Integer.parseInt(score1Label_score.getText())+10+"");
+				} else if(ansLoca==2) {
+					score2Label_score.setText(Integer.parseInt(score2Label_score.getText())+10+"");
+				} else if(ansLoca==3) {
+					score3Label_score.setText(Integer.parseInt(score3Label_score.getText())+10+"");
+				} else if(ansLoca==4) {
+					score4Label_score.setText(Integer.parseInt(score4Label_score.getText())+10+"");
+				}
+				//정답자 (플레이어 화면 갱신) 끝
+				
+				//출제자 (마우스이벤트X) 시작
+				int publishLoca = Integer.parseInt(data.msg.split(" ")[1]); //출제자 Loca
+				//점수 갱신
+				if(publishLoca==1) { 
+					score1Label_score.setText(Integer.parseInt(score1Label_score.getText())+7+"");
+				} else if(publishLoca==2) {
+					score2Label_score.setText(Integer.parseInt(score2Label_score.getText())+7+"");
+				} else if(publishLoca==3) {
+					score3Label_score.setText(Integer.parseInt(score3Label_score.getText())+7+"");
+				} else if(publishLoca==4) {
+					score4Label_score.setText(Integer.parseInt(score4Label_score.getText())+7+"");
+				}
+				
+				if(user.loca == publishLoca) { //기존출제자가 나인 경우에만
+					//마우스 이벤트X
+					System.out.println("기존 출제자:  " + user.name + "==============");
+					showWord.setText(""); //제시어 출제자 화면에만 출력
+					drawPanel.removeMouseMotionListener(mouse);
+					drawPanel.removeMouseListener(mouse);
+					System.out.println("마우스 이벤트 종료================ ");
+				}
+				//기존출제자 (마우스이벤트X) 끝
+				
+				//다음 출제자인 경우(턴 바꾸기) 시작
+				if(user.loca == publishLoca+1) { //다음 출제자가 나인 경우에만
+					//마우스 이벤트O
+					System.out.println("다음 출제자:  " + user.name);
+					drawPanel.addMouseMotionListener(mouse);
+					drawPanel.addMouseListener(mouse);
+					
+					System.out.println("현재 단어: " + word);
+					showWord.setText(word); //제시어 출제자 화면에만 출력
+				}
+				//다음 출제자인 경우(턴 바꾸기) 끝
+				
+				//그 다음 할 것: 일단 로직 서버 "400", gp "400" 다시 분석 후 일단 되는지나 확인하자. 그후 서버에서 다음턴인 사용자 gp로 제시어 송신?
+				//다음 턴 일때, 그림판화면 지워져 있어야함!
+				//"400" => "900?" 으로 고쳐야함 word()랑 프로토콜 겹침
 			}
 		}
 		
@@ -699,6 +748,19 @@ public class GamePanel extends JPanel{
 					SendObject(data);
 					textField.setText(""); 
 					textField.requestFocus();
+					
+					//제시어를 맞춘 경우
+					if(msg.equals(word)) {
+						data = new Data(user, "900", msg); //정답 알림 송신
+						SendObject(data);
+						
+						//그림판 초기화
+						data = new Data(user, "503", "drawPanelInit");
+						SendObject(data);
+						g2d.setColor(Color.WHITE); //그리는 색상 => panel의 배경색
+						g2d.fillRect(0,0, drawPanel.getWidth(),  drawPanel.getHeight());
+						gc.drawImage(panelImage, 0, 0, drawPanel);
+					}
 				}
 			}
 		}

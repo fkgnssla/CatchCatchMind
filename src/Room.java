@@ -11,7 +11,7 @@ public class Room implements Serializable {
 	int maxUserCount; //최대 인원 수
 	String status; //현재 상태(대기중, 게임중)
 	boolean allReady = false; //모두 준비했는지
-//	Vector<User> userVec = new Vector<User>(); //방에 있는 사용자
+	int currentLoca = 0; //현재 출제자
 	
 	//사용자 입장
 	public void addUser() {

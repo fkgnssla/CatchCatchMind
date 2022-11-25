@@ -433,6 +433,9 @@ public class LobbyPanel extends JPanel {
 								}
 							}
 							break;
+						case "900": //제시어를 맞춘 경우(플레이어 화면갱신, 턴 바꾸기)
+							gf.DoEvent(data);
+							break;
 						case "400":
 						case "401":
 						case "402":
