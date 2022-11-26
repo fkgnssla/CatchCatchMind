@@ -62,6 +62,7 @@ public class GamePanel extends JPanel{
 	private JLabel score2Label_score;
 	private JLabel score3Label_score;
 	private JLabel score4Label_score;
+	private JLabel presenterLabel;
 	
 	//버튼
 	public JButton btnBlack, btnRed, btnBlue, btnGreen, btnYellow, btnEraser, btnClear, btnStart, btnClose;	
@@ -329,6 +330,7 @@ public class GamePanel extends JPanel{
 			}
 		});
 		add(btnStart);
+		//------게임 시작 버튼 끝
 		
 		//------게임 나가기 버튼
 		btnClose = new JButton(closeImg);
@@ -346,7 +348,9 @@ public class GamePanel extends JPanel{
 			}
 		});
 		add(btnClose);
+		//------게임 나가기 버튼 끝
 		
+		//------힌트 버튼
 		JButton btnHint = new JButton("HINT");
 		btnHint.setBounds(79, 390, 75, 30);
 		add(btnHint);
@@ -354,7 +358,14 @@ public class GamePanel extends JPanel{
 		JButton btnPic = new JButton("밑그림");
 		btnPic.setBounds(79, 430, 75, 30);
 		add(btnPic);
-		//------게임 시작 나가기 버튼 끝
+		//------힌트 버튼 끝
+		
+		//------현재 출제자 Label
+		presenterLabel = new JLabel("");
+		presenterLabel.setFont(new Font("맑은 고딕", Font.BOLD, 25));
+		presenterLabel.setBounds(253, 10, 324, 34);
+		add(presenterLabel);
+		//------현재 출제자 Label 끝
 		
 		//버튼 이벤트 주기===============================
 		btnEraser.addActionListener(new ActionListener() { //지우개 버튼
@@ -552,10 +563,6 @@ public class GamePanel extends JPanel{
 	
 		//Mouse Event 수신 처리(그림판)
 		public void DoMouseEvent(Data data) {
-//			lp.SendObject();
-//			Color c;
-//			c = new Color(255, 0, 0); // 다른 사람 것은 Red
-//			g2d.setColor(c);
 			
 			if((startX == 0 && startY == 0) || flag) {//처음 그릴 때
 				startX = data.mouse_e.getX(); 	
@@ -636,8 +643,10 @@ public class GamePanel extends JPanel{
 				drawPanel.addMouseMotionListener(mouse);
 				drawPanel.addMouseListener(mouse);
 				System.out.println(user.name + "인 내가 출제자다!");
-				
+			
 				showWord.setText(word); //제시어 출제자 화면에만 출력
+			} else if(data.code.equals("704")) { //그림을 그리는 사용자를 GamePanel의 presenterLabel에 출력 요청하는 데이터 수신
+				presenterLabel.setText("[" + data.msg + "] 그리는 중...");
 			} else if(data.code.equals("602")) {
 				int i = Integer.parseInt(data.msg);
 				if(i==1) {
@@ -709,8 +718,11 @@ public class GamePanel extends JPanel{
 			}
 		}
 		
-		//제시어 송신 처리
+		//제시어 송신 처리(wordEvent를 수신 => 게임이 시작된 것)
 		public void wordEvent(Data data) {
+			btnStart.setVisible(false); //게임시작 버튼 안 보이게
+			btnClose.setVisible(false); //게임퇴장 버튼 안 보이게
+			
 			if(data.code.equals("400")) { //제시어
 				System.out.println(data.msg + "> 제시어 받았숨");
 				word = data.msg;//제시어 받음

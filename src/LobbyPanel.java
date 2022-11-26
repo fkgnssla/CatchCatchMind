@@ -445,6 +445,7 @@ public class LobbyPanel extends JPanel {
 						case "501":
 						case "502":
 						case "503":
+						case "704": //그림을 그리는 사용자를 GamePanel의 presenterLabel에 출력 요청하는 데이터 송신
 							gf.DoEvent(data);
 							break;
 						case "600": //방 생성

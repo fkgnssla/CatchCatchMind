@@ -458,14 +458,27 @@ public class GameServer extends JFrame {
 		            	//제시어 클라에게 전송
 		            	Word();
 		            	
+		            	String curPresenterName="";//현재 출제자 이름
+		            	
 		            	//해당 방의 loca가 1인 User에게 출제하라고 송신
 		            	for(int i=0; i < user_vc.size(); i++) { 
 		            		UserService us = (UserService)user_vc.get(i);
-		            		if((us.room.id == room.id) && us.user.loca==1) { //id같으면
+		            		if((us.room.id == room.id) && (us.user.loca==1)) { 
+	            				curPresenterName = us.UserName;
 		            			sendData = new Data(user, "703", word); //제시어 담아서 보냄
 				            	us.WriteOneObject(sendData);
 		            		}
 		            	}
+		            	
+		            	//그림을 그리는 사용자를 GamePanel의 presenterLabel에 출력 요청하는 데이터 송신
+		            	for(int i=0; i < user_vc.size(); i++) { 
+		            		UserService us = (UserService)user_vc.get(i);
+		            		if(us.room.id == room.id) { 
+		            			sendData = new Data(user, "704", curPresenterName);
+		            			us.WriteOneObject(sendData);
+		            		}
+		            	}
+		            	
 		            } else if (data.code.matches("301")) { //게임 시작
 		                  
 		            } else if (data.code.matches("900")) { //제시어를 맞춘 경우
@@ -499,7 +512,22 @@ public class GameServer extends JFrame {
 		            		}
 		            	}
 		            	
-		            	//word()해야함
+		            	String curPresenterName="";//현재 출제자 이름
+		            	//그림을 그리는 사용자를 GamePanel의 presenterLabel에 출력 요청하는 데이터 송신
+		            	for(int i=0; i < user_vc.size(); i++) { 
+		            		UserService us = (UserService)user_vc.get(i);
+		            		if((us.room.id == room.id) && (us.user.loca==room.currentLoca)) { 
+	            				curPresenterName = us.UserName; //출제자 이름 찾기
+		            		}
+		            	}
+		            	for(int i=0; i < user_vc.size(); i++) { //방의 사용자에게 송신
+		            		UserService us = (UserService)user_vc.get(i);
+		            		if(us.room.id == room.id) { 
+		            			data1 = new Data(user, "704", curPresenterName);
+		            			us.WriteOneObject(data1);
+		            		}
+		            	}
+		            	
 		            } else if (data.code.matches("500") || data.code.matches("501") || data.code.matches("502")) { //마우스 이벤트
 		            	System.out.println(user.name + " " + room.id + ": MOUSE\n");
 		            	
