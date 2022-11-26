@@ -15,6 +15,7 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -237,27 +238,25 @@ public class GameServer extends JFrame {
 				
 				while(br.readLine() != null) 
 					words.add(br.readLine());
+				
 				Random random = new Random();
 				String w = words.get(random.nextInt(words.size()));
 				
 				String[] ws = w.split(" ");
 				word = ws[0]; //제시어
 				initword = ws[1]; //초성
-				//firstword = w.charAt(0); //첫글자
+				firstword = ws[2]; //첫글자
 				
-				Data wordData = new Data(user, "400", word); //제시어
-				Data initData = new Data(user, "401", initword); //초성
-				//Data firstData = new Data(user, "402", firstword); //첫글자
+				//제시어+초성+첫글자
+				Data wordData = new Data(user, "400", word + " " + initword + " " + firstword); 
 
-				System.out.println("word()실행됩니다");
-            	
 				//같은 방에 있는 사용자에게 제시어, 초성, 첫 글자 송신
             	for(int i=0; i < user_vc.size(); i++) { 
             		UserService usData = (UserService)user_vc.get(i);
             		if(usData.room!=null) {
             			if(usData.room.id == room.id) {
             				usData.WriteOneObject(wordData);
-            				usData.WriteOneObject(initData);
+            				//usData.WriteOneObject(initData);
             			}
             		}
             	}

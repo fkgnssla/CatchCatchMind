@@ -14,6 +14,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -353,6 +354,20 @@ public class GamePanel extends JPanel{
 		//------힌트 버튼
 		JButton btnHint = new JButton("HINT");
 		btnHint.setBounds(79, 390, 75, 30);
+		btnHint.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				//힌트 팝업으로 띄워줌
+				String [] hints = {"초성 힌트", "첫글자 힌트"};
+				int hintindex = JOptionPane.showOptionDialog(null, "힌트를 선택하세요.", "Hint", 0, JOptionPane.QUESTION_MESSAGE, null, hints, "");
+				
+				if(hintindex == 0) {
+					JOptionPane.showMessageDialog(null, "힌트  :  " + initw, "Hint", JOptionPane.PLAIN_MESSAGE); //초성힌트
+				}
+				else
+					JOptionPane.showMessageDialog(null, "힌트  :  " + firstw, "Hint", JOptionPane.PLAIN_MESSAGE); //첫글자힌트
+				
+			}
+		});
 		add(btnHint);
 		
 		JButton btnPic = new JButton("밑그림");
@@ -724,15 +739,10 @@ public class GamePanel extends JPanel{
 			btnClose.setVisible(false); //게임퇴장 버튼 안 보이게
 			
 			if(data.code.equals("400")) { //제시어
-				System.out.println(data.msg + "> 제시어 받았숨");
-				word = data.msg;//제시어 받음
-			} else if (data.code.equals("401")) { //초성
-				System.out.println(data.msg + " 401 신호");
-				initw = data.msg;
-			} else if (data.code.equals("402")) { //첫글자
-				System.out.println(data.msg + " 402 신호");
-				firstw = data.msg;
-			}
+				word = data.msg.split(" ")[0];
+				initw = data.msg.split(" ")[1];
+				firstw = data.msg.split(" ")[2];
+			} 
 		}
 		
 		// Mouse Event 송신 처리
