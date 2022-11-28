@@ -501,6 +501,9 @@ public class GameServer extends JFrame {
 		            	if(room.maxUserCount == room.currentLoca) room.currentLoca = 1; 
 		            	else room.currentLoca = (room.currentLoca+1);
 		            	
+		            	//round 변경
+		            	room.round+=1;
+		            	
 		            	//나중에 여기서 게임종료 code 작성해야함(room.currentLoca==room.maxCount)
 		            	
 		            	//제시어, 초성, 첫 글자 송신
@@ -514,20 +517,58 @@ public class GameServer extends JFrame {
 		            		}
 		            	}
 		            	
-		            	String curPresenterName="";//현재 출제자 이름
-		            	//그림을 그리는 사용자를 GamePanel의 presenterLabel에 출력 요청하는 데이터 송신
-		            	for(int i=0; i < user_vc.size(); i++) { 
-		            		UserService us = (UserService)user_vc.get(i);
-		            		if((us.room.id == room.id) && (us.user.loca==room.currentLoca)) { 
-	            				curPresenterName = us.UserName; //출제자 이름 찾기
-		            		}
-		            	}
-		            	for(int i=0; i < user_vc.size(); i++) { //방의 사용자에게 송신
-		            		UserService us = (UserService)user_vc.get(i);
-		            		if(us.room.id == room.id) { 
-		            			data1 = new Data(user, "704", curPresenterName);
-		            			us.WriteOneObject(data1);
-		            		}
+		            	//모든 라운드가 종료된 경우
+		            	if(room.round >  room.maxUserCount*2) {
+		            		System.out.println("모든 라운드 종료! 현재 방 제목: " + room.title);
+		            		room.round = 1;
+		            		//방의 모든 사용자 개개인에게 "xx점으로 내 순위는 x등입니다."를 알릴 수 있게 score와 rank를 보낸다.
+		            		//같은 방에 있는 사용자의 UserService
+			            	Vector<UserService> sameRoomUs = new Vector<UserService>();
+			            	//같은 방에 있는 사용자 찾아 sameRoomUs에 저장
+			            	for(int i=0; i < user_vc.size(); i++) { 
+			            		UserService usData = (UserService)user_vc.get(i);
+			            		if(usData.room!=null) { //방이 있는 UserService만 판단
+				            		if(usData.room.id == room.id) {
+				            			sameRoomUs.add(usData);
+				            		}
+			            		}
+			            	}
+			            	//같은 방에 있는 사용자마다 자신의 정보를 송신
+			            	Data sendData;
+			            	for (int i=0;i<sameRoomUs.size();i++) {
+			            		UserService myUs = (UserService)sameRoomUs.get(i);
+			            		int rank = 1;
+			            		for (int j=0;j<sameRoomUs.size();j++) {
+			            			UserService otherUs = (UserService)sameRoomUs.get(j);
+			            			if(myUs.user.score<otherUs.user.score) rank+=1;
+				            	}
+			            		sendData = new Data(user, "901", myUs.user.score + " " + rank);
+			            		myUs.WriteOneObject(sendData); //자신의 점수와 순위를 보낸다.
+			            	}
+			            	//점수 초기화
+			            	for (int i=0;i<sameRoomUs.size();i++) {
+			            		UserService myUs = (UserService)sameRoomUs.get(i);
+			            		myUs.user.score = 0;
+			            	}
+			            	
+			            	//일단 여기까지 되는지 확인!
+			            	
+		            	} else {
+		            		String curPresenterName="";//현재 출제자 이름
+			            	//그림을 그리는 사용자를 GamePanel의 presenterLabel에 출력 요청하는 데이터 송신
+			            	for(int i=0; i < user_vc.size(); i++) { 
+			            		UserService us = (UserService)user_vc.get(i);
+			            		if((us.room.id == room.id) && (us.user.loca==room.currentLoca)) { 
+		            				curPresenterName = us.UserName; //출제자 이름 찾기
+			            		}
+			            	}
+			            	for(int i=0; i < user_vc.size(); i++) { //방의 사용자에게 송신
+			            		UserService us = (UserService)user_vc.get(i);
+			            		if(us.room.id == room.id) { 
+			            			data1 = new Data(user, "704", curPresenterName);
+			            			us.WriteOneObject(data1);
+			            		}
+			            	}	
 		            	}
 		            	
 		            } else if (data.code.matches("500") || data.code.matches("501") || data.code.matches("502")) { //마우스 이벤트

@@ -727,11 +727,25 @@ public class GamePanel extends JPanel{
 					System.out.println("현재 단어: " + word);
 					showWord.setText(word); //제시어 출제자 화면에만 출력
 				}
-				//다음 출제자인 경우(턴 바꾸기) 끝
+			} else if(data.code.equals("901")) { //각각 사용자의 점수와 등수를 수신한다.(모든 라운드가 끝날을 때 받는다.)
+				int score = Integer.parseInt(data.msg.split(" ")[0]);
+				int rank = Integer.parseInt(data.msg.split(" ")[1]);
 				
-				//그 다음 할 것: 일단 로직 서버 "400", gp "400" 다시 분석 후 일단 되는지나 확인하자. 그후 서버에서 다음턴인 사용자 gp로 제시어 송신?
-				//다음 턴 일때, 그림판화면 지워져 있어야함!
-				//"400" => "900?" 으로 고쳐야함 word()랑 프로토콜 겹침
+				JOptionPane.showMessageDialog(null,"[" + user.name + "]\n" + score + "점으로 순위는 " + rank + "등입니다!",
+						"GameOver!!", JOptionPane.PLAIN_MESSAGE);
+				//게임화면 초기화
+				score1Label_score.setText("0");
+				score2Label_score.setText("0");
+				score3Label_score.setText("0");
+				score4Label_score.setText("0");
+				presenterLabel.setText("");
+				textArea.setText("");
+				btnStart.setVisible(true); //게임시작 버튼 보이게
+				btnClose.setVisible(true); //게임퇴장 버튼 보이게
+				showWord.setText("");
+
+				//단어, 힌트 초기화
+				word = initw = firstw =  "";
 			}
 		}
 		

@@ -12,6 +12,7 @@ public class Room implements Serializable {
 	String status; //현재 상태(대기중, 게임중)
 	boolean allReady = false; //모두 준비했는지
 	int currentLoca = 0; //현재 출제자
+	int round = 1; //현재 라운드
 	
 	//사용자 입장
 	public void addUser() {
