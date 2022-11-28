@@ -495,8 +495,11 @@ public class GameServer extends JFrame {
 		            	//화면 갱신, 턴 넘기는 데이터 생성(?)
 		            	Data data1 = new Data(user,"900", user.loca + " " + room.currentLoca); //정답자 + " " + 출제자
 		            	System.out.println("정답자: " + user.loca + ", 출제자: " + room.currentLoca);
+		            	
 		            	//loca 변경(기존 출제자 => 마우스이벤트X, 다음 출제자 => 마우스이벤트O)
-		            	room.currentLoca = room.currentLoca+1;
+		            	//마지막 출제자가 최대 loca라면 1로 설정(계속 돌기위함)
+		            	if(room.maxUserCount == room.currentLoca) room.currentLoca = 1; 
+		            	else room.currentLoca = (room.currentLoca+1);
 		            	
 		            	//나중에 여기서 게임종료 code 작성해야함(room.currentLoca==room.maxCount)
 		            	

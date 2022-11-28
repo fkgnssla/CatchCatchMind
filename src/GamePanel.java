@@ -716,7 +716,9 @@ public class GamePanel extends JPanel{
 				//기존출제자 (마우스이벤트X) 끝
 				
 				//다음 출제자인 경우(턴 바꾸기) 시작
-				if(user.loca == publishLoca+1) { //다음 출제자가 나인 경우에만
+				if(room.maxUserCount == publishLoca) publishLoca = 1;
+            	else publishLoca = (publishLoca+1);
+				if(user.loca == publishLoca) { //다음 출제자가 나인 경우에만
 					//마우스 이벤트O
 					System.out.println("다음 출제자:  " + user.name);
 					drawPanel.addMouseMotionListener(mouse);
