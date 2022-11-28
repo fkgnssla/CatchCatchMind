@@ -26,6 +26,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+import javax.swing.text.html.ImageView;
 
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -67,6 +68,7 @@ public class GamePanel extends JPanel{
 	
 	//버튼
 	public JButton btnBlack, btnRed, btnBlue, btnGreen, btnYellow, btnEraser, btnClear, btnStart, btnClose;	
+	public JButton btnPic, btnHint;
 	
 	private ImageIcon black = new ImageIcon("src/image/black.png");
 	private ImageIcon red = new ImageIcon("src/image/red.png");
@@ -78,6 +80,16 @@ public class GamePanel extends JPanel{
 	private ImageIcon startImg = new ImageIcon("src/image/startbtn.png");
 	private ImageIcon closeImg = new ImageIcon("src/image/exit.png");
 
+	private ImageIcon Imgrainbow = new ImageIcon("src/image/rainbow.jpg");
+	private ImageIcon Imgchristmas = new ImageIcon("src/image/christmas.jpg");
+	private ImageIcon Imgiphone = new ImageIcon("src/image/iphone.jpg");
+	private ImageIcon Imgpenguine= new ImageIcon("src/image/penguine.jpg");
+	private ImageIcon Imgcat = new ImageIcon("src/image/cat.jpg");
+	private ImageIcon Imgangrybird = new ImageIcon("src/image/angrybird.jpg");
+	private ImageIcon Imgkorea = new ImageIcon("src/image/korea.jpg");
+	private ImageIcon Imgstrawberry = new ImageIcon("src/image/strawberry.jpg");
+	private ImageIcon Imgnotebook = new ImageIcon("src/image/notebook.jpg");
+	private ImageIcon Imgsea = new ImageIcon("src/image/sea.jpg");
 	
 	//음향
 	private Clip clip1; //배경음악
@@ -93,7 +105,7 @@ public class GamePanel extends JPanel{
 	private int pen_size = 2; // minimum 2
 		
 	// 그려진 Image를 보관하는 용도, paint() 함수에서 이용한다.
-	private Image panelImage = null; 
+	private Image panelImage; 
 	//Draw용 속성 끝======================================
 	
 	private String word; //제시어
@@ -154,7 +166,6 @@ public class GamePanel extends JPanel{
 		
 		showWord = new JTextField();
 		showWord.setFont(new Font("맑은 고딕", Font.BOLD, 12));
-		//showWord.setText("딸기맛 사탕");
 		showWord.setBounds(530, 81, 100, 25);
 		showWord.setEnabled(false);
 		showWord.setColumns(10);
@@ -352,8 +363,9 @@ public class GamePanel extends JPanel{
 		//------게임 나가기 버튼 끝
 		
 		//------힌트 버튼
-		JButton btnHint = new JButton("HINT");
+		btnHint = new JButton("HINT");
 		btnHint.setBounds(79, 390, 75, 30);
+		btnHint.setVisible(true); 
 		btnHint.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
 				//힌트 팝업으로 띄워줌
@@ -370,9 +382,36 @@ public class GamePanel extends JPanel{
 		});
 		add(btnHint);
 		
-		JButton btnPic = new JButton("밑그림");
+		btnPic = new JButton("밑그림");
 		btnPic.setBounds(79, 430, 75, 30);
+		btnPic.setVisible(false); //처음엔 밑그림 버튼 안 보이게
+		btnPic.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				if(word.equals("무지개")) {
+					AppendImage(Imgrainbow);
+				}else if(word.equals("크리스마스")) {
+					AppendImage(Imgchristmas);
+				}else if(word.equals("아이폰")) {
+					AppendImage(Imgiphone);
+				}else if(word.equals("펭귄")) {
+					AppendImage(Imgpenguine);
+				}else if(word.equals("고양이")) {
+					AppendImage(Imgcat);
+				}else if(word.equals("앵그리버드")) {
+					AppendImage(Imgangrybird);
+				}else if(word.equals("대한민국")) {
+					AppendImage(Imgkorea);
+				}else if(word.equals("딸기")) {
+					AppendImage(Imgstrawberry);
+				}else if(word.equals("노트북")) {
+					AppendImage(Imgnotebook);
+				}else if(word.equals("바다")) {
+					AppendImage(Imgsea);
+				}
+			}
+		});
 		add(btnPic);
+		
 		//------힌트 버튼 끝
 		
 		//------현재 출제자 Label
@@ -659,6 +698,10 @@ public class GamePanel extends JPanel{
 				drawPanel.addMouseListener(mouse);
 				System.out.println(user.name + "인 내가 출제자다!");
 			
+				//출제자는 밑그림 버튼만, 유저들은 힌트 버튼만
+				btnPic.setVisible(true); //밑그림 버튼 활성화
+				btnHint.setVisible(false); //힌트 버튼 비활성화
+				
 				showWord.setText(word); //제시어 출제자 화면에만 출력
 			} else if(data.code.equals("704")) { //그림을 그리는 사용자를 GamePanel의 presenterLabel에 출력 요청하는 데이터 수신
 				presenterLabel.setText("[" + data.msg + "] 그리는 중...");
@@ -712,6 +755,9 @@ public class GamePanel extends JPanel{
 					drawPanel.removeMouseMotionListener(mouse);
 					drawPanel.removeMouseListener(mouse);
 					System.out.println("마우스 이벤트 종료================ ");
+					
+					btnPic.setVisible(false); //밑그림 버튼 비활성화
+					btnHint.setVisible(true); //힌트 버튼 활성화
 				}
 				//기존출제자 (마우스이벤트X) 끝
 				
@@ -723,6 +769,9 @@ public class GamePanel extends JPanel{
 					System.out.println("다음 출제자:  " + user.name);
 					drawPanel.addMouseMotionListener(mouse);
 					drawPanel.addMouseListener(mouse);
+					
+					btnPic.setVisible(true); //밑그림 버튼 활성화
+					btnHint.setVisible(false); //힌트 버튼 비활성화
 					
 					System.out.println("현재 단어: " + word);
 					showWord.setText(word); //제시어 출제자 화면에만 출력
@@ -822,5 +871,22 @@ public class GamePanel extends JPanel{
 			}
 		    int len = textArea.getDocument().getLength();
 			textArea.setCaretPosition(len);	
+		}
+		
+		public void AppendImage(ImageIcon ori_icon) {
+			Image ori_img  = ori_icon.getImage();
+			Image new_img;
+			ImageIcon new_icon;
+			int width, height;
+			width = ori_icon.getIconWidth();
+			height = ori_icon.getIconHeight();
+			//이미지 크기 맞추기
+			width = 428; height = 314;
+			
+			new_img = ori_img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+			new_icon = new ImageIcon(new_img);
+			
+			g2d.drawImage(ori_img, 0, 0, drawPanel.getWidth(), drawPanel.getHeight(), drawPanel);
+			gc.drawImage(panelImage, 0, 0, drawPanel.getWidth(), drawPanel.getHeight(), drawPanel);
 		}
 }
