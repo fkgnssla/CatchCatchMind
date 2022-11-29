@@ -457,13 +457,13 @@ public class GameServer extends JFrame {
 		            	//제시어 클라에게 전송
 		            	Word();
 		            	
-		            	String curPresenterName="";//현재 출제자 이름
+		            	String curPresenterName="";//현재 출제자 이름, 남은 라운드
 		            	
 		            	//해당 방의 loca가 1인 User에게 출제하라고 송신
 		            	for(int i=0; i < user_vc.size(); i++) { 
 		            		UserService us = (UserService)user_vc.get(i);
 		            		if((us.room.id == room.id) && (us.user.loca==1)) { 
-	            				curPresenterName = us.UserName;
+	            				curPresenterName = us.UserName + "/" + room.round;
 		            			sendData = new Data(user, "703", word); //제시어 담아서 보냄
 				            	us.WriteOneObject(sendData);
 		            		}
@@ -557,7 +557,7 @@ public class GameServer extends JFrame {
 			            	for(int i=0; i < user_vc.size(); i++) { 
 			            		UserService us = (UserService)user_vc.get(i);
 			            		if((us.room.id == room.id) && (us.user.loca==room.currentLoca)) { 
-		            				curPresenterName = us.UserName; //출제자 이름 찾기
+		            				curPresenterName = us.UserName + "/" + room.round; //출제자 이름 찾기
 			            		}
 			            	}
 			            	for(int i=0; i < user_vc.size(); i++) { //방의 사용자에게 송신

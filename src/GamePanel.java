@@ -65,6 +65,7 @@ public class GamePanel extends JPanel{
 	private JLabel score3Label_score;
 	private JLabel score4Label_score;
 	private JLabel presenterLabel;
+	private JLabel roundLabel;
 	
 	//버튼
 	public JButton btnBlack, btnRed, btnBlue, btnGreen, btnYellow, btnEraser, btnClear, btnStart, btnClose;	
@@ -95,10 +96,10 @@ public class GamePanel extends JPanel{
 	private Clip clip1; //배경음악
 	
 	//Draw용 속성 시작=====================================
-	int startX; 
-	int startY; 
-	int endX; 
-	int endY;
+	int startX = 0; 
+	int startY = 0; 
+	int endX = 0; 
+	int endY = 0;
 	    
 	private Graphics gc;
 	private Graphics2D g2d;
@@ -414,12 +415,17 @@ public class GamePanel extends JPanel{
 		
 		//------힌트 버튼 끝
 		
-		//------현재 출제자 Label
+		//------현재 출제자, 남은 라운드 Label
 		presenterLabel = new JLabel("");
 		presenterLabel.setFont(new Font("맑은 고딕", Font.BOLD, 25));
 		presenterLabel.setBounds(253, 10, 324, 34);
 		add(presenterLabel);
-		//------현재 출제자 Label 끝
+		
+		roundLabel = new JLabel("");
+		roundLabel.setFont(new Font("맑은 고딕", Font.BOLD, 17));
+		roundLabel.setBounds(30, 78, 148, 34);
+		add(roundLabel);
+		//------현재 출제자, 남은 라운드 Label 끝
 		
 		//버튼 이벤트 주기===============================
 		btnEraser.addActionListener(new ActionListener() { //지우개 버튼
@@ -568,6 +574,7 @@ public class GamePanel extends JPanel{
 			
 			endX = e.getX(); 
             endY = e.getY(); 
+            System.out.println(startX + " " + startY + ", " + endX + " " + endY);
 			g2d.drawLine(startX, startY, endX, endY);  
 			gc.drawImage(panelImage, 0, 0, drawPanel);
 			
@@ -704,7 +711,10 @@ public class GamePanel extends JPanel{
 				
 				showWord.setText(word); //제시어 출제자 화면에만 출력
 			} else if(data.code.equals("704")) { //그림을 그리는 사용자를 GamePanel의 presenterLabel에 출력 요청하는 데이터 수신
-				presenterLabel.setText("[" + data.msg + "] 그리는 중...");
+				String presenter = data.msg.split("/")[0];
+				String round = data.msg.split("/")[1];
+				roundLabel.setText("Round " + round);
+				presenterLabel.setText("[" + presenter + "] 그리는 중...");
 			} else if(data.code.equals("602")) {
 				int i = Integer.parseInt(data.msg);
 				if(i==1) {
@@ -787,6 +797,7 @@ public class GamePanel extends JPanel{
 				score2Label_score.setText("0");
 				score3Label_score.setText("0");
 				score4Label_score.setText("0");
+				roundLabel.setText("");
 				presenterLabel.setText("");
 				textArea.setText("");
 				btnStart.setVisible(true); //게임시작 버튼 보이게
@@ -795,6 +806,10 @@ public class GamePanel extends JPanel{
 
 				//단어, 힌트 초기화
 				word = initw = firstw =  "";
+				
+				//loca==1인 사용자를 위해 해주는 작업 (MyMouseEvent 제거) => 그림판 오류 수정
+				drawPanel.removeMouseMotionListener(mouse);
+				drawPanel.removeMouseListener(mouse);	
 			}
 		}
 		
