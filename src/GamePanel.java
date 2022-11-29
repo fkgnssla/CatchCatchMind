@@ -201,7 +201,7 @@ public class GamePanel extends JPanel{
 		
 		//------사용자
 		//user1
-		JLabel user1Label = new JLabel(userImg);
+		JLabel user1Label = new JLabel(userImg2);
 		user1Label.setBounds(106, 112, 68, 110);
 		add(user1Label);
 		username1 = new JTextField();

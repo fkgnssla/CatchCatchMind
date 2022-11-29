@@ -14,6 +14,7 @@ public class GameFrame extends JFrame{
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 863, 572);
+		setResizable(false);
 		setLocationRelativeTo(null);
 		
 		gp = new GamePanel(this, lp, user);

@@ -478,8 +478,6 @@ public class GameServer extends JFrame {
 		            		}
 		            	}
 		            	
-		            } else if (data.code.matches("301")) { //게임 시작
-		                  
 		            } else if (data.code.matches("900")) { //제시어를 맞춘 경우
 		            	//정답자 점수 +10
 		            	user.score+=10;
