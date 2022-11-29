@@ -8,8 +8,12 @@ import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 
 import javax.swing.JTextField;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JRadioButton;
@@ -22,9 +26,11 @@ public class CreateRoomFrame extends JFrame {
 	private Data data;
 	private String title;
 	private LobbyPanel lp;
+	private Clip buttonClip; //버튼 효과음
 	
 	public CreateRoomFrame(LobbyPanel lp) {
 		this.lp = lp;
+		loadAudioBack();
 		
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -78,6 +84,8 @@ public class CreateRoomFrame extends JFrame {
 		contentPane.add(lblNewLabel_2);
 		lblNewLabel_2.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
+				buttonClip.start();
+				buttonClip.setFramePosition(0);
 				//서버로 Room 데이터 보내고 Frame 종료
 				title = textField.getText();
 				if(player3Radio.isSelected()) {
@@ -103,6 +111,21 @@ public class CreateRoomFrame extends JFrame {
 		lblNewLabel_2_1.setFont(new Font("맑은 고딕", Font.PLAIN, 24));
 		lblNewLabel_2_1.setBounds(186, 249, 107, 33);
 		contentPane.add(lblNewLabel_2_1);
+		lblNewLabel_2_1.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				buttonClip.start();
+				buttonClip.setFramePosition(0);
+				dispose(); //프레임 종료
+			}
+			public void mouseEntered(MouseEvent e) {
+				lblNewLabel_2_1.setFont(new Font("맑은 고딕",Font.BOLD,26));
+				lblNewLabel_2_1.setForeground(Color.WHITE);
+			}
+			public void mouseExited(MouseEvent e) {
+				lblNewLabel_2_1.setFont(new Font("맑은 고딕",Font.BOLD,24));
+				lblNewLabel_2_1.setForeground(Color.BLACK);
+			}
+		});
 		
 		lblNewLabel_2_1.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
@@ -125,5 +148,15 @@ public class CreateRoomFrame extends JFrame {
 //		room.userVec.add(lp.user); //방 객체의 사용자 목록 속성 변경
 		data = new Data(lp.user, "600", "createRoom");
 		data.room = room;
+	}
+	
+	public void loadAudioBack() {
+		try {
+			buttonClip= AudioSystem.getClip();
+			File audioFile1 = new File("sound/btn.wav");
+			AudioInputStream audioStream1 = AudioSystem.getAudioInputStream(audioFile1);
+			buttonClip.open(audioStream1);
+		}
+		catch (Exception e) {return;}
 	}
 }

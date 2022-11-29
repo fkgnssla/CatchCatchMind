@@ -67,6 +67,7 @@ public class LobbyPanel extends JPanel {
 	
 	//음향
 	private Clip clip1; //배경음악
+	private Clip buttonClip; //버튼 효과음
 	
 	private LobbyPanel lp;
 	private CreateRoomFrame crf;
@@ -78,7 +79,7 @@ public class LobbyPanel extends JPanel {
 		setBounds(100, 100, 863, 572);
 		setLayout(null);
 		//음향 시작
-//		loadAudioBack();
+		loadAudioBack();
 //		clip1.start(); //배경음악 시작
 		//음향 종료
 		
@@ -109,6 +110,8 @@ public class LobbyPanel extends JPanel {
 		createRoomLabel.setFont(new Font("맑은 고딕", Font.BOLD, 16));
 		createRoomLabel.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
+				buttonClip.start();
+				buttonClip.setFramePosition(0);
 				crf = new CreateRoomFrame(lp);
 			}
 			public void mouseEntered(MouseEvent e) {
@@ -316,9 +319,14 @@ public class LobbyPanel extends JPanel {
 	public void loadAudioBack() {
 		try {
 			clip1= AudioSystem.getClip();
-			File audioFile = new File("sound/lobbyRoom.wav");
-			AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
-			clip1.open(audioStream);
+			File audioFile1 = new File("sound/lobbyRoom.wav");
+			AudioInputStream audioStream1 = AudioSystem.getAudioInputStream(audioFile1);
+			clip1.open(audioStream1);
+			
+			buttonClip= AudioSystem.getClip();
+			File audioFile2 = new File("sound/btn.wav");
+			AudioInputStream audioStream2 = AudioSystem.getAudioInputStream(audioFile2);
+			buttonClip.open(audioStream2);
 		}
 		catch (Exception e) {return;}
 	}

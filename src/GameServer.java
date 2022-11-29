@@ -235,13 +235,13 @@ public class GameServer extends JFrame {
         	try {
 				BufferedReader br = new BufferedReader(new FileReader("wordlist.txt"));
 				ArrayList<String> words = new ArrayList<String>();
+				String s;
 				
-				while(br.readLine() != null) 
-					words.add(br.readLine());
+				while((s = br.readLine()) != null) 
+					words.add(s);
 				
 				Random random = new Random();
 				String w = words.get(random.nextInt(words.size()));
-				
 				String[] ws = w.split(" ");
 				word = ws[0]; //제시어
 				initword = ws[1]; //초성

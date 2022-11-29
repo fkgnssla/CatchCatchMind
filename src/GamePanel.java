@@ -52,10 +52,10 @@ public class GamePanel extends JPanel{
 	private JPanel colorBar;
 	private JPanel userPanel;
 	private JTextField textField;
-	private JTextField username1;
-	private JTextField username2;
-	private JTextField username3;
-	private JTextField username4;
+	private JLabel username1;
+	private JLabel username2;
+	private JLabel username3;
+	private JLabel username4;
 	private JTextField showWord;
 	private JTextPane textArea;
 	private JButton btnInput;
@@ -94,6 +94,10 @@ public class GamePanel extends JPanel{
 	
 	//음향
 	private Clip clip1; //배경음악
+	private Clip correctClip; //제시어 맞춘 경우
+	private Clip incorrectClip; //제시어 못 맞춘 경우
+	private Clip colorClip; //색 바꾸는 경우
+	private Clip buttonClip; //버튼 효과음
 	
 	//Draw용 속성 시작=====================================
 	int startX = 0; 
@@ -109,7 +113,7 @@ public class GamePanel extends JPanel{
 	private Image panelImage; 
 	//Draw용 속성 끝======================================
 	
-	private String word; //제시어
+	private String word = ""; //제시어
 	private String initw; //초성
 	private String firstw; //첫글자
 	
@@ -131,7 +135,7 @@ public class GamePanel extends JPanel{
 		setBounds(0, 0, 863, 572);
 		
 		//음향 시작
-//		loadAudioBack();
+		loadAudioBack();
 //		clip1.start(); //배경음악 시작
 		//음향 종료
 		
@@ -205,12 +209,12 @@ public class GamePanel extends JPanel{
 		JLabel user1Label = new JLabel(userImg2);
 		user1Label.setBounds(106, 112, 68, 110);
 		add(user1Label);
-		username1 = new JTextField();
-		username1.setFont(new Font("맑은 고딕", Font.BOLD, 11));
+		username1 = new JLabel();
+		username1.setFont(new Font("맑은 고딕", Font.BOLD, 12));
 		username1.setText("빈 자리");
 		username1.setBounds(37, 129, 68, 22);
-		username1.setEnabled(false);
-		username1.setColumns(10);
+//		username1.setEnabled(false);
+//		username1.setColumns(10);
 		add(username1);
 		
 		JLabel score1Label = new JLabel("SCORE");
@@ -227,12 +231,12 @@ public class GamePanel extends JPanel{
 		user3Label.setBounds(105, 214, 68, 110);
 		add(user3Label);
 		
-		username3 = new JTextField();
+		username3 = new JLabel();
 		username3.setText("빈 자리");
-		username3.setFont(new Font("맑은 고딕", Font.BOLD, 11));
+		username3.setFont(new Font("맑은 고딕", Font.BOLD, 12));
 		username3.setBounds(36, 231, 68, 22);
-		username3.setEnabled(false);
-		username3.setColumns(10);
+//		username3.setEnabled(false);
+//		username3.setColumns(10);
 		JLabel score3Label = new JLabel("SCORE");
 		score3Label.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		score3Label.setBounds(42,288,65,17);
@@ -248,12 +252,12 @@ public class GamePanel extends JPanel{
 		user2Label.setBounds(746, 108, 68, 110);
 		add(user2Label);
 		
-		username2 = new JTextField();
+		username2 = new JLabel();
 		username2.setText("빈 자리");
 		username2.setFont(new Font("맑은 고딕", Font.BOLD, 12));
 		username2.setBounds(676, 125, 68, 22);
-		username2.setEnabled(false);
-		username2.setColumns(10);
+//		username2.setEnabled(false);
+//		username2.setColumns(10);
 		JLabel score2Label = new JLabel("SCORE");
 		score2Label.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		score2Label.setBounds(679, 180, 65, 17);	
@@ -269,12 +273,12 @@ public class GamePanel extends JPanel{
 		user4Label.setBounds(744, 210, 68, 110);
 		add(user4Label);
 		
-		username4 = new JTextField();
+		username4 = new JLabel();
 		username4.setText("빈 자리");
 		username4.setFont(new Font("맑은 고딕", Font.BOLD, 12));
 		username4.setBounds(674, 228, 68, 22);
-		username4.setEnabled(false);
-		username4.setColumns(10);
+//		username4.setEnabled(false);
+//		username4.setColumns(10);
 		JLabel score4Label = new JLabel("SCORE");
 		score4Label.setFont(new Font("맑은 고딕", Font.PLAIN, 13));
 		score4Label.setBounds(679, 282, 65, 17);	
@@ -336,7 +340,9 @@ public class GamePanel extends JPanel{
 		btnStart.setVisible(false); //처음엔 게임시작 버튼 안 보이게
 		btnStart.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
-				System.out.println("현재 게임방 번호 : " + room.id);
+				buttonClip.start();
+				buttonClip.setFramePosition(0);
+				
 				Data data = new Data(user, "300", "GameStart!");
 				data.room = room;
 				lp.SendObject(data);
@@ -351,12 +357,12 @@ public class GamePanel extends JPanel{
 		btnClose.setBounds(730, 13, 60, 60);
 		btnClose.addMouseListener(new MouseAdapter() { //방 퇴장
 			public void mousePressed(MouseEvent e) {
-				System.out.println("퇴장하는 게임방 번호 : " + room.id);
+				buttonClip.start();
+				buttonClip.setFramePosition(0);
 				
 				Data data = new Data(user, "602", "gameRoomExit"); //방 퇴장
 				data.room = room;
 				lp.SendObject(data);
-				
 				gf.dispose();
 			}
 		});
@@ -369,6 +375,8 @@ public class GamePanel extends JPanel{
 		btnHint.setVisible(true); 
 		btnHint.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
+				buttonClip.start();
+				buttonClip.setFramePosition(0);
 				//힌트 팝업으로 띄워줌
 				String [] hints = {"초성 힌트", "첫글자 힌트"};
 				int hintindex = JOptionPane.showOptionDialog(null, "힌트를 선택하세요.", "Hint", 0, JOptionPane.QUESTION_MESSAGE, null, hints, "");
@@ -431,6 +439,9 @@ public class GamePanel extends JPanel{
 		btnEraser.addActionListener(new ActionListener() { //지우개 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				colorClip.start();
+				colorClip.setFramePosition(0);
+				
 				Data data = new Data(user, "503", "erase");
 				SendObject(data);
 				g2d.setColor(Color.WHITE);
@@ -440,6 +451,9 @@ public class GamePanel extends JPanel{
 		btnBlack.addActionListener(new ActionListener() { //검정색 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				colorClip.start();
+				colorClip.setFramePosition(0);
+				
 				Data data = new Data(user, "503", "black");
 				SendObject(data);
 				g2d.setColor(Color.BLACK);
@@ -449,6 +463,9 @@ public class GamePanel extends JPanel{
 		btnBlue.addActionListener(new ActionListener() { //파란색 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				colorClip.start();
+				colorClip.setFramePosition(0);
+				
 				Data data = new Data(user, "503", "blue");
 				SendObject(data);
 				g2d.setColor(Color.BLUE);
@@ -458,6 +475,9 @@ public class GamePanel extends JPanel{
 		btnGreen.addActionListener(new ActionListener() { //초록색 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				colorClip.start();
+				colorClip.setFramePosition(0);
+				
 				Data data = new Data(user, "503", "green");
 				SendObject(data);
 				g2d.setColor(Color.GREEN);
@@ -467,6 +487,9 @@ public class GamePanel extends JPanel{
 		btnYellow.addActionListener(new ActionListener() { //노란색 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				colorClip.start();
+				colorClip.setFramePosition(0);
+				
 				Data data = new Data(user, "503", "yellow");
 				SendObject(data);
 				g2d.setColor(Color.YELLOW);
@@ -476,7 +499,9 @@ public class GamePanel extends JPanel{
 		btnRed.addActionListener(new ActionListener() { //빨간색 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("Red\n");
+				colorClip.start();
+				colorClip.setFramePosition(0);
+				
 				Data data = new Data(user, "503", "red");
 				SendObject(data);
 				g2d.setColor(Color.RED);
@@ -486,11 +511,15 @@ public class GamePanel extends JPanel{
 		btnClear.addActionListener(new ActionListener() { //초기화 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				colorClip.start();
+				colorClip.setFramePosition(0);
+				
 				Data data = new Data(user, "503", "drawPanelInit");
 				SendObject(data);
 				g2d.setColor(Color.WHITE); //그리는 색상 => panel의 배경색
 				g2d.fillRect(0,0, drawPanel.getWidth(),  drawPanel.getHeight());
 				gc.drawImage(panelImage, 0, 0, drawPanel);
+				g2d.setColor(Color.BLACK);
 			}
 		});
 		//버튼 이벤트 주기===============================
@@ -504,10 +533,30 @@ public class GamePanel extends JPanel{
 	
 	public void loadAudioBack() {
 		try {
-			clip1= AudioSystem.getClip();
-			File audioFile = new File("sound/gameRoom.wav");
-			AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
-			clip1.open(audioStream);
+			clip1 = AudioSystem.getClip();
+			File audioFile1 = new File("sound/gameRoom.wav");
+			AudioInputStream audioStream1 = AudioSystem.getAudioInputStream(audioFile1);
+			clip1.open(audioStream1);
+			
+			correctClip = AudioSystem.getClip();
+			File audioFile2 = new File("sound/correct.wav");
+			AudioInputStream audioStream2 = AudioSystem.getAudioInputStream(audioFile2);
+			correctClip.open(audioStream2);
+			
+			incorrectClip = AudioSystem.getClip();
+			File audioFile3 = new File("sound/incorrect.wav");
+			AudioInputStream audioStream3 = AudioSystem.getAudioInputStream(audioFile3);
+			incorrectClip.open(audioStream3);
+			
+			colorClip = AudioSystem.getClip();
+			File audioFile4 = new File("sound/color.wav");
+			AudioInputStream audioStream4 = AudioSystem.getAudioInputStream(audioFile4);
+			colorClip.open(audioStream4);
+			
+			buttonClip = AudioSystem.getClip();
+			File audioFile5 = new File("sound/btn.wav");
+			AudioInputStream audioStream5 = AudioSystem.getAudioInputStream(audioFile5);
+			buttonClip.open(audioStream5);
 		}
 		catch (Exception e) {return;}
 	}
@@ -680,6 +729,7 @@ public class GamePanel extends JPanel{
 					g2d.setColor(Color.WHITE); //그리는 색상 => panel의 배경색
 					g2d.fillRect(0,0, drawPanel.getWidth(),  drawPanel.getHeight());
 					gc.drawImage(panelImage, 0, 0, drawPanel);
+					g2d.setColor(Color.BLACK);
 				}
 			} else if (data.code.equals("700")) { //플레이어 화면 갱신
 				int i = data.user.loca;
@@ -853,6 +903,9 @@ public class GamePanel extends JPanel{
 					
 					//제시어를 맞춘 경우
 					if(msg.equals(word)) {
+						correctClip.start();
+						correctClip.setFramePosition(0);
+						
 						data = new Data(user, "900", msg); //정답 알림 송신
 						SendObject(data);
 						
@@ -862,6 +915,11 @@ public class GamePanel extends JPanel{
 						g2d.setColor(Color.WHITE); //그리는 색상 => panel의 배경색
 						g2d.fillRect(0,0, drawPanel.getWidth(),  drawPanel.getHeight());
 						gc.drawImage(panelImage, 0, 0, drawPanel);
+					} else {
+						if(!word.equals("")) { //게임을 시작한 경우에만 효과음
+							incorrectClip.start();
+							incorrectClip.setFramePosition(0);
+						}
 					}
 				}
 			}
