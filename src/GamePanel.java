@@ -37,6 +37,8 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.ImageObserver;
 import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.awt.event.ActionEvent;
 
 public class GamePanel extends JPanel{
@@ -66,6 +68,7 @@ public class GamePanel extends JPanel{
 	private JLabel score4Label_score;
 	private JLabel presenterLabel;
 	private JLabel roundLabel;
+	private JLabel timerLabel;
 	
 	//버튼
 	public JButton btnBlack, btnRed, btnBlue, btnGreen, btnYellow, btnEraser, btnClear, btnStart, btnClose;	
@@ -121,9 +124,15 @@ public class GamePanel extends JPanel{
 	private LobbyPanel lp;
 	private User user; //현재 사용자
 	private Room room; //현재 방
+	
 	// Mouse Event 수신 처리
 	boolean flag = false;
 	MyMouseEvent mouse = new MyMouseEvent();
+	
+	//시간 관련
+	int count = 30;
+	private Timer timer;
+	private TimerTask task;
 	
 	public GamePanel(GameFrame gf, LobbyPanel lp, User user) {
 		this.gf = gf;
@@ -423,7 +432,7 @@ public class GamePanel extends JPanel{
 		
 		//------힌트 버튼 끝
 		
-		//------현재 출제자, 남은 라운드 Label
+		//------현재 출제자, 남은 라운드, 남은 시간 Label
 		presenterLabel = new JLabel("");
 		presenterLabel.setFont(new Font("맑은 고딕", Font.BOLD, 25));
 		presenterLabel.setBounds(253, 10, 324, 34);
@@ -433,7 +442,12 @@ public class GamePanel extends JPanel{
 		roundLabel.setFont(new Font("맑은 고딕", Font.BOLD, 17));
 		roundLabel.setBounds(30, 78, 148, 34);
 		add(roundLabel);
-		//------현재 출제자, 남은 라운드 Label 끝
+		
+		timerLabel = new JLabel("");
+		timerLabel.setFont(new Font("맑은 고딕", Font.BOLD, 17));
+		timerLabel.setBounds(210, 73, 123, 38);
+		add(timerLabel);
+		//------현재 출제자, 남은 라운드, 남은 시간 Label 끝
 		
 		//버튼 이벤트 주기===============================
 		btnEraser.addActionListener(new ActionListener() { //지우개 버튼
@@ -798,14 +812,16 @@ public class GamePanel extends JPanel{
 				//출제자 (마우스이벤트X) 시작
 				int publishLoca = Integer.parseInt(data.msg.split(" ")[1]); //출제자 Loca
 				//점수 갱신
-				if(publishLoca==1) { 
-					score1Label_score.setText(Integer.parseInt(score1Label_score.getText())+7+"");
-				} else if(publishLoca==2) {
-					score2Label_score.setText(Integer.parseInt(score2Label_score.getText())+7+"");
-				} else if(publishLoca==3) {
-					score3Label_score.setText(Integer.parseInt(score3Label_score.getText())+7+"");
-				} else if(publishLoca==4) {
-					score4Label_score.setText(Integer.parseInt(score4Label_score.getText())+7+"");
+				if(ansLoca != 0) { //맞춘 사용자가 있을 경우에만 갱신
+					if(publishLoca==1) { 
+						score1Label_score.setText(Integer.parseInt(score1Label_score.getText())+7+"");
+					} else if(publishLoca==2) {
+						score2Label_score.setText(Integer.parseInt(score2Label_score.getText())+7+"");
+					} else if(publishLoca==3) {
+						score3Label_score.setText(Integer.parseInt(score3Label_score.getText())+7+"");
+					} else if(publishLoca==4) {
+						score4Label_score.setText(Integer.parseInt(score4Label_score.getText())+7+"");
+					}	
 				}
 				
 				if(user.loca == publishLoca) { //기존출제자가 나인 경우에만
@@ -853,13 +869,15 @@ public class GamePanel extends JPanel{
 				btnStart.setVisible(true); //게임시작 버튼 보이게
 				btnClose.setVisible(true); //게임퇴장 버튼 보이게
 				showWord.setText("");
-
 				//단어, 힌트 초기화
 				word = initw = firstw =  "";
 				
 				//loca==1인 사용자를 위해 해주는 작업 (MyMouseEvent 제거) => 그림판 오류 수정
 				drawPanel.removeMouseMotionListener(mouse);
 				drawPanel.removeMouseListener(mouse);	
+				
+				if(timer!=null) timer.cancel();
+				timerLabel.setText("");
 			}
 		}
 		
@@ -872,7 +890,36 @@ public class GamePanel extends JPanel{
 				word = data.msg.split(" ")[0];
 				initw = data.msg.split(" ")[1];
 				firstw = data.msg.split(" ")[2];
-			} 
+			}
+			
+			if(timer!=null) timer.cancel(); //전에 돌아가던 것이 있다면 확실하게 멈추고
+			timer = new Timer(); //다시 생성
+			task = new TimerTask() {
+				@Override
+				public void run() {
+					if(count<0) {
+						timer.cancel();
+						//다음 턴으로 넘기라는 데이터 송신해야함. (loca==1인 사용자가 대표로 보낸다.)
+						if(user.loca == 1) {
+							Data sendData = new Data(user, "900", "timeOver"); //제한시간 초과 알림
+							SendObject(sendData);
+							
+							//그림판 초기화
+							sendData = new Data(user, "503", "drawPanelInit");
+							SendObject(sendData);
+							g2d.setColor(Color.WHITE); //그리는 색상 => panel의 배경색
+							g2d.fillRect(0,0, drawPanel.getWidth(),  drawPanel.getHeight());
+							gc.drawImage(panelImage, 0, 0, drawPanel);	
+						}
+					}
+					else {
+						timerLabel.setText("남은 시간: " + count);
+						count-=1;
+					}
+				}
+			};
+			count = 30; //남은 시간 초기화
+			timer.schedule(task, 0, 1000);
 		}
 		
 		// Mouse Event 송신 처리

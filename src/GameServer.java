@@ -479,20 +479,24 @@ public class GameServer extends JFrame {
 		            	}
 		            	
 		            } else if (data.code.matches("900")) { //제시어를 맞춘 경우
-		            	//정답자 점수 +10
-		            	user.score+=10;
-		            	
-		            	//출제자 점수 +7
-		            	for(int i=0; i < user_vc.size(); i++) { 
-		            		UserService us = (UserService)user_vc.get(i);
-		            		if((us.room.id == room.id) && us.user.loca==room.currentLoca) { //id같으면
-		            			us.user.score+=7;
-		            		}
+		            	Data data1;
+		            	if(!data.msg.equals("timeOver")) { //제시어를 맞춘 경우
+		            		//정답자 점수 +10
+			            	user.score+=10;
+			            	
+			            	//출제자 점수 +7
+			            	for(int i=0; i < user_vc.size(); i++) { 
+			            		UserService us = (UserService)user_vc.get(i);
+			            		if((us.room.id == room.id) && us.user.loca==room.currentLoca) { //id같으면
+			            			us.user.score+=7;
+			            		}
+			            	}	
+			            	//화면 갱신, 턴 넘기는 데이터 생성(?)
+			            	data1 = new Data(user,"900", user.loca + " " + room.currentLoca); //정답자 + " " + 출제자
+			            	System.out.println("정답자: " + user.loca + ", 출제자: " + room.currentLoca);
+		            	} else { //제한 시간이 초과된 경우
+		            		data1 = new Data(user,"900", 0 + " " + room.currentLoca); //정답자 + " " + 출제자
 		            	}
-		            	
-		            	//화면 갱신, 턴 넘기는 데이터 생성(?)
-		            	Data data1 = new Data(user,"900", user.loca + " " + room.currentLoca); //정답자 + " " + 출제자
-		            	System.out.println("정답자: " + user.loca + ", 출제자: " + room.currentLoca);
 		            	
 		            	//loca 변경(기존 출제자 => 마우스이벤트X, 다음 출제자 => 마우스이벤트O)
 		            	//마지막 출제자가 최대 loca라면 1로 설정(계속 돌기위함)
@@ -568,7 +572,6 @@ public class GameServer extends JFrame {
 			            		}
 			            	}	
 		            	}
-		            	
 		            } else if (data.code.matches("500") || data.code.matches("501") || data.code.matches("502")) { //마우스 이벤트
 		            	System.out.println(user.name + " " + room.id + ": MOUSE\n");
 		            	
