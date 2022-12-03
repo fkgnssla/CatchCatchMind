@@ -671,11 +671,16 @@ public class GameServer extends JFrame {
 		            	//같은 방에 있는 사용자 찾아 loca 갱신
 		            	for(int i=0; i < user_vc.size(); i++) { 
 		            		UserService usData = (UserService)user_vc.get(i);
+		            		Data sendData;
 		            		if(usData.room!=null) { //방이 있는 UserService만 판단
 			            		if(usData.room.id == id) {
 			            			if(usData.user.loca>loca) { //퇴장한 사용자의 loca보다 큰 값을 가지는 사용자 1칸씩 땡기기
+			            				sendData = new Data(user,"602-1","sort"); //GamePanel의 사용자 loca도 1칸씩 땡기기 위한 데이터 송신
+			            				usData.WriteOneObject(sendData);
 			            				usData.user.loca-=1;
 			            			}
+			            			sendData = new Data(user,"604","startButtonDeactivate");
+			            			usData.WriteOneObject(sendData);
 			            		}
 		            		}
 		            	}

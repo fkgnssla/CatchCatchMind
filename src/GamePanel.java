@@ -101,6 +101,7 @@ public class GamePanel extends JPanel{
 	private Clip incorrectClip; //제시어 못 맞춘 경우
 	private Clip colorClip; //색 바꾸는 경우
 	private Clip buttonClip; //버튼 효과음
+	private Clip timeOutClip; //시간초과 효과음
 	
 	//Draw용 속성 시작=====================================
 	int startX = 0; 
@@ -145,7 +146,10 @@ public class GamePanel extends JPanel{
 		
 		//음향 시작
 		loadAudioBack();
-//		clip1.start(); //배경음악 시작
+		if(user.loca==1) { //무조건 하나의 사용자에서만 배경음악이 나오도록
+//			clip1.start(); //배경음악 시작
+			clip1.loop(Clip.LOOP_CONTINUOUSLY);
+		}
 		//음향 종료
 		
 //		//메뉴바 시작
@@ -366,6 +370,7 @@ public class GamePanel extends JPanel{
 		btnClose.setBounds(730, 13, 60, 60);
 		btnClose.addMouseListener(new MouseAdapter() { //방 퇴장
 			public void mousePressed(MouseEvent e) {
+				clip1.stop(); //퇴장 시 배경음악 끄기
 				buttonClip.start();
 				buttonClip.setFramePosition(0);
 				
@@ -571,6 +576,11 @@ public class GamePanel extends JPanel{
 			File audioFile5 = new File("sound/btn.wav");
 			AudioInputStream audioStream5 = AudioSystem.getAudioInputStream(audioFile5);
 			buttonClip.open(audioStream5);
+			
+			timeOutClip = AudioSystem.getClip();
+			File audioFile6 = new File("sound/timeout.wav");
+			AudioInputStream audioStream6 = AudioSystem.getAudioInputStream(audioFile6);
+			timeOutClip.open(audioStream6);
 		}
 		catch (Exception e) {return;}
 	}
@@ -764,6 +774,9 @@ public class GamePanel extends JPanel{
 			} else if (data.code.equals("603")) { //방이 꽉 찼다면 게임방 내 게임시작 버튼 활성화 (해당 방의 모든 사용자가 받는다.)
 				System.out.println("게임시작 버튼 활성화!");
 				btnStart.setVisible(true);
+			} else if(data.code.equals("604")) { //방이 꽉 차지 않았다면 게임시작 버튼 비활성화(누군가 퇴장한 경우)
+				System.out.println("게임시작 버튼 비활성화!");
+				btnStart.setVisible(false);
 			} else if(data.code.equals("703")) { //내가 출제자인 경우
 				drawPanel.addMouseMotionListener(mouse);
 				drawPanel.addMouseListener(mouse);
@@ -878,6 +891,9 @@ public class GamePanel extends JPanel{
 				
 				if(timer!=null) timer.cancel();
 				timerLabel.setText("");
+			} else if(data.code.equals("602-1")) { //GamePanel의 사용자 loca도 1칸씩 땡기기 위한 데이터 송신
+				//해당 메시지를 받은 사용자들의 loca를 1칸씩 감소
+				user.loca-=1;
 			}
 		}
 		
@@ -915,6 +931,12 @@ public class GamePanel extends JPanel{
 					else {
 						timerLabel.setText("남은 시간: " + count);
 						count-=1;
+					}
+					
+					if(count==1) { //제한시간이 3초 남았을 때 시작
+						//효과음
+						timeOutClip.start();
+						timeOutClip.setFramePosition(0);
 					}
 				}
 			};

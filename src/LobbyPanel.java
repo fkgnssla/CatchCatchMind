@@ -511,7 +511,9 @@ public class LobbyPanel extends JPanel {
 							} else //맨 마지막에 있는 사용자의 플레이어 화면 초기화
 								gf.DoEvent(data);
 							break;
+						case "602-1": //GamePanel의 사용자 loca도 1칸씩 땡기기 위한 데이터 수신
 						case "603": //방이 꽉 찼다면 게임방 내 게임시작 버튼 활성화
+						case "604": //방이 꽉 차지 않았다면 게임시작 버튼 비활성화(누군가 퇴장한 경우)
 							gf.DoEvent(data);
 							break;
 						case "700": //게임 방에 모든 플레이어 화면 갱신
