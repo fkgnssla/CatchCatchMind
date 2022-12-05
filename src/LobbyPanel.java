@@ -138,7 +138,7 @@ public class LobbyPanel extends JPanel {
 			new Object[][] {
 			},
 			new String[] {
-				"방 번호", "모드", "방 제목", "방장", "현재 인원", "상태"
+				"방 번호", "모드", "방 제목", "생성한 사용자", "현재 인원", "상태"
 			})
 			{
 				public boolean isCellEditable(int row, int column) {
@@ -165,7 +165,9 @@ public class LobbyPanel extends JPanel {
 					
 					Data data = new Data(user, "601", curRoomID);
 					//data.room = room;
-					SendObject(data);
+					String roomCount = (String)roomTable.getModel().getValueAt(row,4); //방 인원
+					if(!roomCount.split("/")[0].equals(roomCount.split("/")[1])) //방이 꽉 차지 않았을때만 입장
+						SendObject(data);
 				} 
 			}
 			@Override

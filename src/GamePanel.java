@@ -615,14 +615,12 @@ public class GamePanel extends JPanel{
 		public void mouseDragged(MouseEvent e) {
 			//도전과제 시작
 			endX = e.getX(); 
-            endY = e.getY(); 
-
+            endY = e.getY();
+            System.out.println(startX + " " + startY + ", " + endX + " " + endY); //추가
             g2d.drawLine(startX, startY, endX, endY);       
             gc.drawImage(panelImage, 0, 0, drawPanel);
-            
-            startX = endX; 
-            startY = endY;
-            
+            startX = e.getX(); 
+			startY = e.getY(); 
 			SendMouseEvent(e);
 		}
 
@@ -650,7 +648,8 @@ public class GamePanel extends JPanel{
             System.out.println(startX + " " + startY + ", " + endX + " " + endY);
 			g2d.drawLine(startX, startY, endX, endY);  
 			gc.drawImage(panelImage, 0, 0, drawPanel);
-			
+			startX = endX; //추가
+            startY = endY; //추가
 //			ChatMsg cm = new ChatMsg(UserName, "502", "MOUSE");
 //    		cm.mouse_e = e;
 //    		cm.pen_size = pen_size;
@@ -678,7 +677,6 @@ public class GamePanel extends JPanel{
 		public void mousePressed(MouseEvent e) {
 			startX = e.getX(); //마우스가 눌렸을때 그때의 X좌표값으로 초기화
             startY = e.getY(); //마우스가 눌렸을때 그때의 Y좌표값으로 초기화
-            
             Data data = new Data(user, "501", "Pressed");
             data.mouse_e = e;
     		SendObject(data);
