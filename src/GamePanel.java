@@ -185,7 +185,7 @@ public class GamePanel extends JPanel{
 		showWord = new JTextField();
 		showWord.setFont(new Font("맑은 고딕", Font.BOLD, 12));
 		showWord.setBounds(530, 81, 100, 25);
-//		showWord.setEnabled(false);
+		showWord.setEnabled(false);
 		showWord.setColumns(10);
 		add(showWord);
 		//------제시어 끝

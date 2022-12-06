@@ -32,7 +32,6 @@ import java.awt.event.ActionEvent;
 import javax.swing.SwingConstants;
 
 public class GameServer extends JFrame {
-	int flag = 0; //잠시 추가
 	/**
 	 * 
 	 */
@@ -242,12 +241,6 @@ public class GameServer extends JFrame {
 				
 				Random random = new Random();
 				String w = words.get(random.nextInt(words.size()));
-				if(flag==0) {words.get(1); flag++;} //크리스마스
-				else if(flag==1) {words.get(6); flag++;} //대한민국
-				else if(flag==2) {words.get(7); flag++;} //딸기
-				else if(flag==2) {words.get(5); flag++;} //앵그리버드
-				else if(flag==2) {words.get(0); flag++;} //무지개
-				else if(flag==2) {words.get(2); flag++;} //아이폰
 				String[] ws = w.split(" "); 
 				word = ws[0]; //제시어
 				initword = ws[1]; //초성
