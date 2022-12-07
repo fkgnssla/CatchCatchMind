@@ -382,7 +382,6 @@ public class GameServer extends JFrame {
 			sendRoom.currentUserCount = room.currentUserCount;
 			sendRoom.maxUserCount = room.maxUserCount;
 			sendRoom.status = room.status;
-			sendRoom.allReady = room.allReady;
 			
 			return sendRoom;
 		}

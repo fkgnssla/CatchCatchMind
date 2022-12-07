@@ -10,7 +10,6 @@ public class Room implements Serializable {
 	int currentUserCount = 1; //현재 인원 수
 	int maxUserCount; //최대 인원 수
 	String status; //현재 상태(대기중, 게임중)
-	boolean allReady = false; //모두 준비했는지
 	int currentLoca = 0; //현재 출제자
 	int round = 1; //현재 라운드
 	

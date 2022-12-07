@@ -120,6 +120,7 @@ public class GamePanel extends JPanel{
 	private String word = ""; //제시어
 	private String initw; //초성
 	private String firstw; //첫글자
+	String presenter = ""; //출제자 이름
 	
 	private GameFrame gf;
 	private LobbyPanel lp;
@@ -458,6 +459,7 @@ public class GamePanel extends JPanel{
 		btnEraser.addActionListener(new ActionListener() { //지우개 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if(!presenter.equals(user.name)) return; //출제자가 아니면 버튼 클릭 처리X
 				colorClip.start();
 				colorClip.setFramePosition(0);
 				
@@ -470,6 +472,7 @@ public class GamePanel extends JPanel{
 		btnBlack.addActionListener(new ActionListener() { //검정색 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if(!presenter.equals(user.name)) return; //출제자가 아니면 버튼 클릭 처리X
 				colorClip.start();
 				colorClip.setFramePosition(0);
 				
@@ -482,6 +485,7 @@ public class GamePanel extends JPanel{
 		btnBlue.addActionListener(new ActionListener() { //파란색 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if(!presenter.equals(user.name)) return; //출제자가 아니면 버튼 클릭 처리X
 				colorClip.start();
 				colorClip.setFramePosition(0);
 				
@@ -494,6 +498,7 @@ public class GamePanel extends JPanel{
 		btnGreen.addActionListener(new ActionListener() { //초록색 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if(!presenter.equals(user.name)) return; //출제자가 아니면 버튼 클릭 처리X
 				colorClip.start();
 				colorClip.setFramePosition(0);
 				
@@ -506,6 +511,7 @@ public class GamePanel extends JPanel{
 		btnYellow.addActionListener(new ActionListener() { //노란색 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if(!presenter.equals(user.name)) return; //출제자가 아니면 버튼 클릭 처리X
 				colorClip.start();
 				colorClip.setFramePosition(0);
 				
@@ -518,6 +524,7 @@ public class GamePanel extends JPanel{
 		btnRed.addActionListener(new ActionListener() { //빨간색 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if(!presenter.equals(user.name)) return; //출제자가 아니면 버튼 클릭 처리X
 				colorClip.start();
 				colorClip.setFramePosition(0);
 				
@@ -530,6 +537,7 @@ public class GamePanel extends JPanel{
 		btnClear.addActionListener(new ActionListener() { //초기화 버튼
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if(!presenter.equals(user.name)) return; //출제자가 아니면 버튼 클릭 처리X
 				colorClip.start();
 				colorClip.setFramePosition(0);
 				
@@ -786,7 +794,7 @@ public class GamePanel extends JPanel{
 				
 				showWord.setText(word); //제시어 출제자 화면에만 출력
 			} else if(data.code.equals("704")) { //그림을 그리는 사용자를 GamePanel의 presenterLabel에 출력 요청하는 데이터 수신
-				String presenter = data.msg.split("/")[0];
+				presenter = data.msg.split("/")[0];
 				String round = data.msg.split("/")[1];
 				roundLabel.setText("Round " + round);
 				presenterLabel.setText("[" + presenter + "] 그리는 중...");
@@ -967,6 +975,8 @@ public class GamePanel extends JPanel{
 					SendObject(data);
 					textField.setText(""); 
 					textField.requestFocus();
+					
+					if(presenter.equals(user.name)) return; //출제자가 맞추면 정답처리X
 					
 					//제시어를 맞춘 경우
 					if(msg.equals(word)) {
